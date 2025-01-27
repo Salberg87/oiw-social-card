@@ -77,7 +77,7 @@ export function PreviewCard({ formData }: PreviewCardProps) {
             {/* OIW Logo */}
             <div className="w-[200px]" data-oid="ufxdcvb">
               <Image
-                src="/GrapicAssets/Logo/OIW25_Logo_Date_RGB_Cream.png"
+                src="/GraphicAssets/Logo/OIW25_Logo_Date_RGB_Cream.png"
                 alt="Oslo Innovation Week 2025"
                 width={200}
                 height={66}

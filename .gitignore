@@ -35,10 +35,10 @@ yarn-error.log*
 next-env.d.ts
 
 # Allow specific asset folders
-!public/GrapicAssets/Logo/*.png
-!public/GrapicAssets/backgrounds/*.png
+!public/GraphicAssets/Logo/*.png
+!public/GraphicAssets/backgrounds/*.png
 
 # Large assets
-/public/GrapicAssets/backgrounds/
+/public/GraphicAssets/backgrounds/
 *.jpg
 *.png

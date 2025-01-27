@@ -9,7 +9,7 @@ export default function Home() {
       <main className="container mx-auto px-4 py-6 sm:py-12" data-oid="nvx4egw">
         <div className="mb-8 sm:mb-12 text-center" data-oid="2xqguc.">
           <Image
-            src="/GrapicAssets/Logo/OIW25_Logo_Date_RGB_BrightRed.png"
+            src="/GraphicAssets/Logo/OIW25_Logo_Date_RGB_BrightRed.png"
             alt="Oslo Innovation Week 2025"
             width={400}
             height={133}

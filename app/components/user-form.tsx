@@ -1,27 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "./ui/select";
 import type { ImageGeneratorState } from "../types";
 import { AlertCircle, Download } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import Image from "next/image";
 import { TOPICS, PLACEHOLDERS } from "../utils/constants";
-import { Button } from "@/components/ui/button";
-import { ImageUploader } from "./ImageUploader";
+import { Button } from "./ui/button";
+import { ImageUploader } from "./image-uploader";
 
 const BACKGROUND_IMAGES = [
-  "GrapicAssets/backgrounds/OIW_GraphicAssets_16x9_02.04.png",
-  "GrapicAssets/backgrounds/OIW_GraphicAssets_16x9_02.05.png",
-  "GrapicAssets/backgrounds/OIW_GraphicAssets_16x9_02.06.png",
+  "GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.04.png",
+  "GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.05.png",
+  "GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.06.png",
 ] as const;
 
 interface UserFormProps {

@@ -2,8 +2,8 @@
 
 import { useState, useCallback, useRef } from "react";
 import { Upload, X } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "./ui/card";
+import { Button } from "./ui/button";
 import ReactCrop, {
   type Crop,
   centerCrop,
@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "./ui/dialog";
 
 interface ImageUploaderProps {
   onImageUpload: (file: File | null, croppedImageUrl: string | null) => void;
