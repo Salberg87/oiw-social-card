@@ -1,3 +1,44 @@
+import { supabase } from '../lib/supabase'
+
+// Cache the backgrounds once fetched
+let cachedBackgrounds: string[] | null = null
+
+// Function to fetch backgrounds from Supabase
+export async function fetchBackgrounds(): Promise<string[]> {
+    if (cachedBackgrounds) return cachedBackgrounds
+
+    const { data, error } = await supabase
+        .storage
+        .from('backgrounds')
+        .list('')
+
+    if (error) {
+        console.error('Error fetching backgrounds:', error)
+        return []
+    }
+
+    // Get public URLs for each file
+    const backgrounds = data
+        .filter(file => file.name.endsWith('.png'))
+        .map(file => {
+            const { data: { publicUrl } } = supabase
+                .storage
+                .from('backgrounds')
+                .getPublicUrl(file.name)
+            return publicUrl
+        })
+
+    cachedBackgrounds = backgrounds
+    return backgrounds
+}
+
+// Function to get a random background
+export const getRandomBackground = async (): Promise<string> => {
+    const backgrounds = await fetchBackgrounds()
+    const randomIndex = Math.floor(Math.random() * backgrounds.length)
+    return backgrounds[randomIndex]
+}
+
 // List of available backgrounds
 export const BACKGROUNDS = [
     "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.01.png",
@@ -23,6 +64,6 @@ export const getBackground = (seed?: string): string => {
 };
 
 // For backwards compatibility
-export const getRandomBackground = (): string => {
+export const getRandomBackgroundLegacy = (): string => {
     return BACKGROUNDS[0]; // Default to first background for now
 }; 

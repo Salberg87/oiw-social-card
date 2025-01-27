@@ -30,6 +30,7 @@ interface UserFormProps {
   onImageUpload: (file: File | null, croppedImageUrl: string | null) => void;
   onChangeBackground: () => void;
   onDownload: () => void;
+  isLoadingBackgrounds?: boolean;
 }
 
 export function UserForm({
@@ -38,6 +39,7 @@ export function UserForm({
   onImageUpload,
   onChangeBackground,
   onDownload,
+  isLoadingBackgrounds = false,
 }: UserFormProps) {
   const [errors, setErrors] = useState<
     Partial<Record<keyof ImageGeneratorState, string>>
@@ -165,9 +167,12 @@ export function UserForm({
             variant="outline"
             onClick={onChangeBackground}
             className="bg-white border-[#0071e1]/20 text-[#005338] hover:bg-[#0071e1]/5 text-base h-12"
+            disabled={isLoadingBackgrounds}
             data-oid="yk3vkac"
           >
-            Change Background
+            {isLoadingBackgrounds
+              ? "Loading backgrounds..."
+              : "Change Background"}
           </Button>
         </div>
       </div>
@@ -176,6 +181,7 @@ export function UserForm({
         <Button
           onClick={onDownload}
           className="w-full bg-[#0071e1] text-white hover:bg-[#0071e1]/90 text-base sm:text-lg h-12 sm:h-14"
+          disabled={isLoadingBackgrounds}
           data-oid="ouchani"
         >
           <Download className="w-5 h-5 mr-2" data-oid="d9vs8uf" />
