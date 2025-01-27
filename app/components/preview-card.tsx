@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import Image from "next/image";
-import { useScreenshot } from "use-react-screenshot";
+import { toPng } from "html-to-image";
 import type { ImageGeneratorState } from "../types";
 
 interface PreviewCardProps {
@@ -11,16 +11,20 @@ interface PreviewCardProps {
 
 export function PreviewCard({ formData }: PreviewCardProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [, takeScreenshot] = useScreenshot();
 
   const handleDownload = async () => {
     if (ref.current) {
-      const image = await takeScreenshot(ref.current);
-      if (image) {
+      try {
+        const image = await toPng(ref.current, {
+          quality: 1.0,
+          pixelRatio: 2,
+        });
         const link = document.createElement("a");
         link.href = image;
         link.download = "oiw-social-card.png";
         link.click();
+      } catch (error) {
+        console.error("Error generating image:", error);
       }
     }
   };
