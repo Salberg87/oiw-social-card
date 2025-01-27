@@ -5,7 +5,7 @@ import { UserForm } from "./user-form";
 import { PreviewCard } from "./preview-card";
 import type { ImageGeneratorState } from "../types";
 import { motion } from "framer-motion";
-import { getRandomBackground } from "../utils/backgrounds";
+import { getBackground, BACKGROUNDS } from "../utils/backgrounds";
 import { TOPICS, PLACEHOLDERS } from "../utils/constants";
 
 const defaultState: ImageGeneratorState = {
@@ -15,11 +15,18 @@ const defaultState: ImageGeneratorState = {
   profileImage: null,
   croppedProfileImage: null,
   topics: [TOPICS[Math.floor(Math.random() * TOPICS.length)]],
-  backgroundImage: getRandomBackground(),
+  backgroundImage: getBackground(),
 };
 
 export function ImageGenerator() {
   const [formData, setFormData] = useState<ImageGeneratorState>(defaultState);
+
+  const handleFormChange = (newData: typeof formData) => {
+    if (newData.firstName !== formData.firstName) {
+      newData.backgroundImage = getBackground(newData.firstName);
+    }
+    setFormData(newData);
+  };
 
   const handleImageUpload = (
     file: File | null,
@@ -33,14 +40,16 @@ export function ImageGenerator() {
   };
 
   const handleChangeBackground = () => {
+    const currentIndex = BACKGROUNDS.indexOf(formData.backgroundImage);
+    const nextIndex = (currentIndex + 1) % BACKGROUNDS.length;
     setFormData((prev) => ({
       ...prev,
-      backgroundImage: getRandomBackground(),
+      backgroundImage: BACKGROUNDS[nextIndex],
     }));
   };
 
   const handleDownload = () => {
-    window.dispatchEvent(new CustomEvent("download-image"));
+    window.dispatchEvent(new Event("download-image"));
   };
 
   return (
@@ -75,7 +84,7 @@ export function ImageGenerator() {
           {/* User Form */}
           <UserForm
             formData={formData}
-            onChange={setFormData}
+            onChange={handleFormChange}
             onImageUpload={handleImageUpload}
             onChangeBackground={handleChangeBackground}
             onDownload={handleDownload}
