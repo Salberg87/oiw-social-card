@@ -18,10 +18,18 @@ export function PreviewCard({ formData }: PreviewCardProps) {
         const image = await toPng(ref.current, {
           quality: 1.0,
           pixelRatio: 2,
+          cacheBust: true,
+          filter: (node) => {
+            // Ensure all images are captured
+            if (node instanceof HTMLImageElement) {
+              return true;
+            }
+            return true;
+          },
         });
         const link = document.createElement("a");
         link.href = image;
-        link.download = "oiw-social-card.png";
+        link.download = `oiw-social-card-${formData.firstName || "untitled"}.png`;
         link.click();
       } catch (error) {
         console.error("Error generating image:", error);
@@ -40,19 +48,25 @@ export function PreviewCard({ formData }: PreviewCardProps) {
   return (
     <div
       ref={ref}
-      className="relative aspect-square overflow-hidden"
+      className="relative aspect-square overflow-hidden bg-[#1E0B2E]"
       data-oid="2r7_d--"
     >
       {/* Background Image */}
       {formData.backgroundImage && (
-        <Image
-          src={formData.backgroundImage}
-          alt="Background"
-          fill
-          className="object-cover"
-          priority
-          data-oid="7._lrns"
-        />
+        <div
+          className="absolute inset-0 next-image-container"
+          data-oid="rvfh1cg"
+        >
+          <Image
+            src={formData.backgroundImage}
+            alt="Background"
+            fill
+            className="object-cover"
+            priority
+            data-oid="7._lrns"
+            unoptimized
+          />
+        </div>
       )}
 
       {/* Content Container */}
