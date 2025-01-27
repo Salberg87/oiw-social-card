@@ -161,7 +161,7 @@ export function PreviewCard({ formData }: PreviewCardProps) {
           {/* Text Content */}
           <div className="text-center space-y-2" data-oid="6nzx5a.">
             <div
-              className="bg-[#1E0B2E] rounded-lg px-4 py-2"
+              className="backdrop-blur-sm rounded-full px-4 py-2 bg-[#1E0B2E]"
               data-oid="rhay2cr"
             >
               <h2
@@ -172,7 +172,7 @@ export function PreviewCard({ formData }: PreviewCardProps) {
               </h2>
             </div>
             <div
-              className="bg-[#1E0B2E] rounded-lg px-4 py-2"
+              className="backdrop-blur-sm rounded-full px-4 py-2 bg-[#1E0B2E]"
               data-oid="d3bv-5e"
             >
               <p className="text-lg text-[#F5F5DC]" data-oid="djahq2:">
