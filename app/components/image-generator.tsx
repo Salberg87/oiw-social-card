@@ -3,9 +3,14 @@
 import { useState, useEffect } from "react";
 import { UserForm } from "./user-form";
 import { PreviewCard } from "./preview-card";
-import type { ImageGeneratorState } from "../types";
+import { type ImageGeneratorState } from "../types";
 import { motion } from "framer-motion";
-import { fetchBackgrounds } from "../utils/backgrounds";
+import {
+  fetchBackgrounds,
+  getBackground,
+  BACKGROUNDS,
+} from "../utils/backgrounds";
+import { fetchLogos, getLogo, LOGOS } from "../utils/logos";
 import { TOPICS, PLACEHOLDERS } from "../utils/constants";
 
 const defaultState: ImageGeneratorState = {
@@ -15,49 +20,47 @@ const defaultState: ImageGeneratorState = {
   profileImage: null,
   croppedProfileImage: null,
   topics: [TOPICS[Math.floor(Math.random() * TOPICS.length)]],
-  backgroundImage:
-    "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.01.png", // Default background
+  backgroundImage: BACKGROUNDS[0],
+  logoImage: LOGOS[0],
 };
 
 export function ImageGenerator() {
   const [formData, setFormData] = useState<ImageGeneratorState>(defaultState);
   const [backgrounds, setBackgrounds] = useState<string[]>([]);
+  const [logos, setLogos] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadBackgrounds = async () => {
+    const loadAssets = async () => {
       try {
         setIsLoading(true);
-        const loadedBackgrounds = await fetchBackgrounds();
+        const [loadedBackgrounds, loadedLogos] = await Promise.all([
+          fetchBackgrounds(),
+          fetchLogos(),
+        ]);
+
         setBackgrounds(loadedBackgrounds);
-        if (loadedBackgrounds.length > 0) {
-          setFormData((prev) => ({
-            ...prev,
-            backgroundImage: loadedBackgrounds[0],
-          }));
-        }
+        setLogos(loadedLogos);
+
+        setFormData((prev) => ({
+          ...prev,
+          backgroundImage: loadedBackgrounds[0] || prev.backgroundImage,
+          logoImage: loadedLogos[0] || prev.logoImage,
+        }));
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load backgrounds",
-        );
-        console.error("Error loading backgrounds:", err);
+        setError(err instanceof Error ? err.message : "Failed to load assets");
+        console.error("Error loading assets:", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadBackgrounds();
+    loadAssets();
   }, []);
 
   const handleFormChange = (newData: typeof formData) => {
-    if (newData.firstName !== formData.firstName && backgrounds.length > 0) {
-      // Create a deterministic index based on the name
-      const total = newData.firstName
-        .split("")
-        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      newData.backgroundImage = backgrounds[total % backgrounds.length];
-    }
+    // Remove automatic background/logo changes based on name
     setFormData(newData);
   };
 
@@ -88,14 +91,14 @@ export function ImageGenerator() {
 
   if (error) {
     return (
-      <div className="text-center p-4" data-oid="8nwhdm2">
-        <p className="text-red-600 mb-2" data-oid="sx_4c09">
-          Error loading backgrounds: {error}
+      <div className="text-center p-4" data-oid="xvoa_:m">
+        <p className="text-red-600 mb-2" data-oid="wsw:u:v">
+          Error loading assets: {error}
         </p>
         <button
           onClick={() => window.location.reload()}
           className="text-[#0071e1] hover:underline"
-          data-oid=":08sql5"
+          data-oid="k7jdp4d"
         >
           Try again
         </button>

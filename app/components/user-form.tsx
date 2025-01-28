@@ -146,45 +146,35 @@ export function UserForm({
         </div>
       </div>
 
-      <div className="space-y-4" data-oid="cai0k72">
-        <div className="space-y-2" data-oid="xb-b1bb">
-          <h3
-            className="font-medium text-[#005338] text-base sm:text-lg"
-            data-oid="8_z2.34"
-          >
-            Profile Picture
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <h3 className="font-medium text-[#005338] text-base sm:text-lg">
+            Customize Your Card
           </h3>
-          <p className="text-base text-[#005338]/80" data-oid="d3yulee">
-            Add your profile picture to make your social card more personal.
+          <p className="text-base text-[#005338]/80">
+            Add your profile picture and customize the look of your card.
           </p>
         </div>
-        <div
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4"
-          data-oid="-l26dro"
-        >
-          <ImageUploader onImageUpload={onImageUpload} data-oid="v5nyvbb" />
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <ImageUploader onImageUpload={onImageUpload} />
           <Button
             variant="outline"
             onClick={onChangeBackground}
             className="bg-white border-[#0071e1]/20 text-[#005338] hover:bg-[#0071e1]/5 text-base h-12"
             disabled={isLoadingBackgrounds}
-            data-oid="yk3vkac"
           >
-            {isLoadingBackgrounds
-              ? "Loading backgrounds..."
-              : "Change Background"}
+            {isLoadingBackgrounds ? "Loading..." : "Change Background"}
           </Button>
         </div>
       </div>
 
-      <div className="pt-4" data-oid="de53qe:">
+      <div className="pt-4">
         <Button
           onClick={onDownload}
           className="w-full bg-[#0071e1] text-white hover:bg-[#0071e1]/90 text-base sm:text-lg h-12 sm:h-14"
           disabled={isLoadingBackgrounds}
-          data-oid="ouchani"
         >
-          <Download className="w-5 h-5 mr-2" data-oid="d9vs8uf" />
+          <Download className="w-5 h-5 mr-2" />
           Download Social Card
         </Button>
       </div>

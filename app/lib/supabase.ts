@@ -1,19 +1,33 @@
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable');
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseKey) {
+    throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY')
 }
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable');
-}
-
-export const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-        auth: {
-            persistSession: false // Since we're using this client-side only
+// Create a singleton Supabase client for the browser
+export const createClient = () => {
+    return createBrowserClient(
+        'https://lohpyvtniqesxzjxhvby.supabase.co',
+        supabaseKey,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            },
+            global: {
+                headers: {
+                    'Authorization': `Bearer ${supabaseKey}`
+                }
+            }
         }
-    }
-); 
+    )
+}
+
+export const supabase = createClient()
+
+// Export URL and key for other uses if needed
+export const SUPABASE_URL = 'https://lohpyvtniqesxzjxhvby.supabase.co'
+export const SUPABASE_ANON_KEY = supabaseKey 
