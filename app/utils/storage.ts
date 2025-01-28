@@ -1,13 +1,19 @@
 import { createClient } from './supabase/client'
 import { FileObject } from '@supabase/storage-js'
 
-// Cache for assets
+/**
+ * Cache for storing fetched asset URLs to minimize API calls
+ * Organized by bucket name for efficient access
+ */
 const assetCache: Record<string, string[]> = {
     backgrounds: [],
     logos: []
 };
 
-// Default assets as fallback
+/**
+ * Default assets to use as fallback when Supabase storage is unavailable
+ * These should match the assets stored in the public directory
+ */
 export const DEFAULT_ASSETS = {
     backgrounds: [
         "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.01.png",
@@ -26,14 +32,26 @@ export const DEFAULT_ASSETS = {
     ]
 };
 
+/**
+ * Configuration options for asset fetching and transformation
+ */
 interface FetchOptions {
+    /** Image quality (1-100), defaults to 75 */
     quality?: number;
+    /** Output format, either 'webp' for better compression or 'png' for transparency */
     format?: 'webp' | 'png';
+    /** Optional width to resize the image */
     width?: number;
+    /** Optional height to resize the image */
     height?: number;
 }
 
-// Function to fetch assets from a specific bucket
+/**
+ * Fetches assets from a specified Supabase storage bucket
+ * @param bucketName - Name of the bucket ('backgrounds' or 'logos')
+ * @param options - Configuration for image transformation
+ * @returns Array of public URLs for the assets
+ */
 export async function fetchAssets(
     bucketName: 'backgrounds' | 'logos',
     options: FetchOptions = { quality: 75, format: 'webp' }
@@ -87,7 +105,13 @@ export async function fetchAssets(
     }
 }
 
-// Function to get an asset based on a seed
+/**
+ * Gets an asset URL based on a seed value (like user's name)
+ * @param seed - String to use for deterministic selection (e.g., user's name)
+ * @param assets - Array of asset URLs to choose from
+ * @param defaultAsset - Fallback asset URL if no valid selection can be made
+ * @returns Selected asset URL
+ */
 export const getAssetBySeed = (
     seed: string | undefined,
     assets: string[],

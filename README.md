@@ -1,106 +1,135 @@
-# OIW Social Card Generator
+# Oslo Innovation Week Social Card Generator
 
-A Next.js application for generating social cards for Oslo Innovation Week 2025.
+A modern web application for creating personalized social media cards for Oslo Innovation Week 2025 attendees. Built with Next.js, Supabase, and TypeScript.
+
+![Oslo Innovation Week](public/GraphicAssets/Logo/OIW25_Logo_Date_RGB_Cream.png)
 
 ## Features
 
-- Generate personalized social cards with:
-  - User's name and title
-  - Profile picture upload and cropping
-  - Discussion topics
-  - Dynamic backgrounds from Supabase storage
-  - OIW logo integration
+- 🎨 Dynamic background selection
+- 📸 Profile image upload with cropping
+- 💬 Topic selection for networking
+- 🔄 Real-time preview
+- 🖼️ High-quality image generation
+- 📱 Responsive design
+- 🚀 Optimized image delivery via Supabase CDN
+
+## Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Storage**: [Supabase Storage](https://supabase.com/storage)
+- **Image Processing**: Supabase Image Transformation API
+- **Animation**: [Framer Motion](https://www.framer.com/motion/)
+- **Deployment**: [Vercel](https://vercel.com)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- A Supabase account and project
+
+### Environment Setup
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd my-app
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create a .env file in the root directory:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### Supabase Setup
+
+1. Create two storage buckets in your Supabase project:
+   - backgrounds - for background images
+   - logos - for logo variations
+
+2. Set appropriate CORS and security policies:
+   - Enable public access for both buckets
+   - Configure image transformations
+
+### Development
+
+Run the development server:
+```bash
+npm run dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
 ## Project Structure
 
 ```
 my-app/
-├── app/
-│   ├── components/
-│   │   ├── image-generator.tsx    # Main component for card generation
-│   │   ├── preview-card.tsx       # Card preview component
-│   │   ├── user-form.tsx         # Form for user input
-│   │   └── image-uploader.tsx    # Image upload component
-│   ├── utils/
-│   │   ├── backgrounds.ts        # Background image handling
-│   │   ├── logos.ts             # Logo handling
-│   │   ├── storage.ts           # Supabase storage utilities
-│   │   ├── constants.ts         # App constants
-│   │   └── supabase/
-│   │       ├── client.ts        # Supabase browser client
-│   │       └── server.ts        # Supabase server client
-│   └── types/
-│       └── index.ts             # TypeScript type definitions
+├── app/                    # Next.js app directory
+│   ├── components/        # React components
+│   ├── lib/              # Library code
+│   ├── types/            # TypeScript types
+│   ├── utils/            # Utility functions
+│   └── page.tsx          # Main page
+├── public/               # Static assets
+│   └── GraphicAssets/    # Images and logos
+└── ...config files
 ```
 
-## Storage Structure
+## Key Components
 
-Supabase Storage Buckets:
-- `backgrounds/` - Background images for cards
-- `logos/` - OIW logo variations
+### ImageGenerator
+The main component that orchestrates the social card generation process. It manages:
+- Form state
+- Asset loading
+- Background selection
+- Image preview
 
-## State Management
+### UserForm
+Handles user input including:
+- Name and title entry
+- Topic selection
+- Profile image upload
+- Background customization
 
-The `ImageGeneratorState` interface defines the core state:
-```typescript
-interface ImageGeneratorState {
-    firstName: string;
-    lastName: string;
-    title: string;
-    profileImage: File | null;
-    croppedProfileImage: string | null;
-    topics: string[];
-    backgroundImage: string;
-    logoImage: string;
-}
-```
+### PreviewCard
+Renders the final social card with:
+- Real-time updates
+- Responsive layout
+- Optimized image display
 
-## Asset Handling
+## Asset Management
 
-- Images are optimized using Supabase's transformation features
-- Backgrounds are converted to WebP format for better performance
-- Logos are kept in PNG format to maintain transparency
-- Client-side caching is implemented for better performance
+The application uses Supabase Storage for asset management with:
+- Automatic WebP conversion for backgrounds
+- High-quality PNG preservation for logos
+- Client-side caching
+- Fallback to local assets
 
-## Environment Variables
+## Contributing
 
-Required environment variables:
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## Getting Started
+## License
 
-First, run the development server:
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Acknowledgments
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Oslo Innovation Week team
+- Supabase team for their excellent storage solution
+- Next.js team for the amazing framework
+-
