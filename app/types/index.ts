@@ -3,15 +3,6 @@
  * This interface defines all the properties needed to generate a personalized social card.
  */
 export interface ImageGeneratorState {
-    /** User's first name - displayed prominently on the card */
-    firstName: string;
-
-    /** User's last name - currently not displayed but reserved for future use */
-    lastName: string;
-
-    /** User's professional title or role */
-    title: string;
-
     /** Original uploaded profile image file before cropping */
     profileImage: File | null;
 

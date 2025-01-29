@@ -19,13 +19,13 @@ export default function Home() {
           />
 
           <h1
-            className="text-[#005338] text-3xl sm:text-4xl font-light mb-6 sm:mb-4 px-2"
+            className="text-[#000037] text-3xl sm:text-4xl font-light mb-6 sm:mb-4 px-2"
             data-oid="nweohhq"
           >
             Create Your Social Card
           </h1>
           <p
-            className="text-[#005338]/80 max-w-2xl mx-auto text-base sm:text-lg px-2"
+            className="text-[#000037]/80 max-w-2xl mx-auto text-base sm:text-lg px-2"
             data-oid="q2vooyh"
           >
             Share your presence at Oslo Innovation Week 2025 with a personalized
