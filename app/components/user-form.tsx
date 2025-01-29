@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import type { ImageGeneratorState } from "../types";
-import { AlertCircle, Download } from "lucide-react";
+import { AlertCircle, Download, Upload } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import Image from "next/image";
 import { TOPICS, PLACEHOLDERS } from "../utils/constants";
@@ -59,79 +59,20 @@ export function UserForm({
   };
 
   return (
-    <div className="space-y-8" data-oid="veel0:m">
-      <div className="space-y-4 sm:space-y-6" data-oid="1qf6u0d">
-        <div className="space-y-2" data-oid="a1ay16x">
-          <Label
-            htmlFor="firstName"
-            className="text-[#005338] text-base sm:text-lg"
-            data-oid="3wq2r2e"
-          >
-            Your Name
-          </Label>
-          <Input
-            id="Name"
-            placeholder={PLACEHOLDERS.name}
-            value={formData.firstName}
-            onChange={(e) => handleChange("firstName", e.target.value)}
-            className={`bg-white border-[#0071e1]/20 text-[#005338] placeholder:text-[#005338]/50 text-base sm:text-lg h-12 ${errors.firstName ? "border-red-500" : ""}`}
-            data-oid="pm-c.v-"
-          />
-
-          {errors.firstName && (
-            <p
-              className="text-red-600 text-sm sm:text-base flex items-center"
-              data-oid="t_f73bo"
-            >
-              <AlertCircle className="w-4 h-4 mr-1" data-oid="ngn-wkj" />
-              {errors.firstName}
-            </p>
-          )}
-        </div>
-        <div className="space-y-2" data-oid="z:h:ya3">
-          <Label
-            htmlFor="title"
-            className="text-[#005338] text-base sm:text-lg"
-            data-oid="r2fu4y4"
-          >
-            Your Title
-          </Label>
-          <Input
-            id="title"
-            placeholder={PLACEHOLDERS.title}
-            value={formData.title}
-            onChange={(e) => handleChange("title", e.target.value)}
-            className={`bg-white border-[#0071e1]/20 text-[#005338] placeholder:text-[#005338]/50 text-base sm:text-lg h-12 ${errors.title ? "border-red-500" : ""}`}
-            data-oid="zl7.2kg"
-          />
-
-          {errors.title && (
-            <p
-              className="text-red-600 text-sm sm:text-base flex items-center"
-              data-oid="c5zw.:5"
-            >
-              <AlertCircle className="w-4 h-4 mr-1" data-oid="w2f--qn" />
-              {errors.title}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-4" data-oid="lc_in33">
-        <div className="space-y-2" data-oid="qw161s5">
+    <div className="space-y-6" data-oid="veel0:m">
+      <div className="space-y-3" data-oid="lc_in33">
+        <div className="space-y-1" data-oid="qw161s5">
           <h3
-            className="font-medium text-[#005338] text-base sm:text-lg"
+            className="font-medium text-[#000037] text-base sm:text-lg"
             data-oid="daqm_cz"
           >
-            Talk Topic
+            What Would You Like to Discuss?
           </h3>
-          <p className="text-base text-[#005338]/80" data-oid="w4smq3.">
-            Write what you&apos;d like to discuss with other attendees during
-            Oslo Innovation Week. This will be displayed on your social tile to
-            help facilitate meaningful connections.
+          <p className="text-base text-[#000037]/80" data-oid="w4smq3.">
+            Add a topic you're passionate about to connect with like-minded attendees at Oslo Innovation Week.
           </p>
         </div>
-        <div className="grid gap-4" data-oid=":.yfw4a">
+        <div className="flex justify-start" data-oid=":.yfw4a">
           <Input
             maxLength={150}
             placeholder={PLACEHOLDERS.topic}
@@ -140,27 +81,38 @@ export function UserForm({
               const newTopics = [e.target.value];
               onChange({ ...formData, topics: newTopics });
             }}
-            className="bg-white border-[#0071e1]/20 text-[#005338] placeholder:text-[#005338]/50 text-base sm:text-lg h-12"
+            className="bg-white border-[#000037]/20 text-[#000037] placeholder:text-[#000037]/50 text-base sm:text-lg h-12 w-[400px]"
             data-oid="dmv56nn"
           />
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <h3 className="font-medium text-[#005338] text-base sm:text-lg">
-            Customize Your Card
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <h3 className="font-medium text-[#000037] text-base sm:text-lg">
+            Personalize Your Card
           </h3>
-          <p className="text-base text-[#005338]/80">
-            Add your profile picture and customize the look of your card.
+          <p className="text-base text-[#000037]/80">
+            Make it yours by adding your photo and choosing a background style.
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <ImageUploader onImageUpload={onImageUpload} />
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-start">
+          <ImageUploader
+            onImageUpload={onImageUpload}
+            triggerButton={
+              <Button
+                variant="outline"
+                className="bg-white border-[#000037] border text-[#000037] hover:bg-[#000037] hover:text-white transition-colors text-base h-12 w-48"
+              >
+                <Upload className="w-5 h-5 mr-2" />
+                Upload Image
+              </Button>
+            }
+          />
           <Button
             variant="outline"
             onClick={onChangeBackground}
-            className="bg-white border-[#0071e1]/20 text-[#005338] hover:bg-[#0071e1]/5 text-base h-12"
+            className="bg-white border-[#000037] border text-[#000037] hover:bg-[#000037] hover:text-white transition-colors text-base h-12 w-48"
             disabled={isLoadingBackgrounds}
           >
             {isLoadingBackgrounds ? "Loading..." : "Change Background"}
@@ -168,10 +120,10 @@ export function UserForm({
         </div>
       </div>
 
-      <div className="pt-4">
+      <div className="pt-4 flex justify-start">
         <Button
           onClick={onDownload}
-          className="w-full bg-[#0071e1] text-white hover:bg-[#0071e1]/90 text-base sm:text-lg h-12 sm:h-14"
+          className="bg-[#000037] text-white hover:bg-white hover:text-[#000037] hover:border-[#000037] hover:border text-base h-12 w-[400px]"
           disabled={isLoadingBackgrounds}
         >
           <Download className="w-5 h-5 mr-2" />

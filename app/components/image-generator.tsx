@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserForm } from "./user-form";
 import { PreviewCard } from "./preview-card";
-import { type ImageGeneratorState } from "../types";
+import { type ImageGeneratorState } from "../types/index";
 import { motion } from "framer-motion";
 import {
   fetchBackgrounds,
@@ -14,9 +14,6 @@ import { fetchLogos, getLogo, LOGOS } from "../utils/logos";
 import { TOPICS, PLACEHOLDERS } from "../utils/constants";
 
 const defaultState: ImageGeneratorState = {
-  firstName: PLACEHOLDERS.name,
-  lastName: "",
-  title: PLACEHOLDERS.title,
   profileImage: null,
   croppedProfileImage: null,
   topics: [TOPICS[Math.floor(Math.random() * TOPICS.length)]],
@@ -124,14 +121,14 @@ export function ImageGenerator() {
         <section className="space-y-4 sm:space-y-6" data-oid="hj8tbci">
           <div className="space-y-2" data-oid="p1yyu6w">
             <h2
-              className="text-xl sm:text-2xl font-semibold text-[#005338]"
+              className="text-xl sm:text-2xl font-semibold text-[#000037]"
               data-oid="1pzqql4"
             >
-              Tell us about yourself
+              Create Your Social Card
             </h2>
-            <p className="text-[#005338]/80 text-base" data-oid="sd.9_b9">
-              Fill in your details to create your personalized social card for
-              Oslo Innovation Week 2025.
+            <p className="text-[#000037]/80 text-base" data-oid="sd.9_b9">
+              Share your presence at Oslo Innovation Week 2025 with a
+              personalized social card.
             </p>
           </div>
 
@@ -158,37 +155,35 @@ export function ImageGenerator() {
       >
         <div className="mb-4 sm:mb-6 space-y-2" data-oid="u6yn.2u">
           <h2
-            className="text-xl sm:text-2xl font-semibold text-[#005338]"
+            className="text-xl sm:text-2xl font-semibold text-[#000037]"
             data-oid="hrr:..l"
           >
             Preview
           </h2>
-          <p className="text-[#005338]/80 text-base" data-oid="zhua-6x">
+          <p className="text-[#000037]/80 text-base" data-oid="zhua-6x">
             This is how your social card will look. Click the download button
             when you&apos;re ready to share!
           </p>
         </div>
-        <div
-          className="bg-[#005338]/5 backdrop-blur-sm p-2 sm:p-4 border border-[#0071e1]/10 overflow-hidden w-[700px] h-[700px] pl-px flex rounded-none"
-          data-oid="iidc6cg"
-        >
+        {/* Preview Card Container */}
+        <div className="flex justify-center items-center w-full overflow-hidden" data-oid="-8o0kj1">
           <div
-            className="max-w-[600px] mx-auto w-full h-full"
-            data-oid="-8o0kj1"
+            className="relative"
+            style={{
+              width: "600px",
+              height: "600px",
+            }}
           >
-            {isLoading ? (
-              <div
-                className="flex items-center justify-center h-full"
-                data-oid="6-n3w._"
-              >
-                <div
-                  className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0071e1]"
-                  data-oid="e1wht7m"
-                ></div>
-              </div>
-            ) : (
-              <PreviewCard formData={formData} data-oid="kz605qs" />
-            )}
+            <div
+              className="origin-top-left"
+              style={{
+                transform: "scale(0.5)",
+                width: "1200px",
+                height: "1200px",
+              }}
+            >
+              <PreviewCard formData={formData} />
+            </div>
           </div>
         </div>
       </motion.div>

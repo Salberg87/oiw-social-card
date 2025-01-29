@@ -84,8 +84,8 @@ export function ImageUploader({
       return;
     }
 
-    // Set desired output size
-    const size = 400;
+    // Set desired output size to 1200x1200 for high resolution
+    const size = 1200;
     canvas.width = size;
     canvas.height = size;
 
@@ -105,7 +105,23 @@ export function ImageUploader({
     const cropHeight = ((crop.height * image.height) / 100) * scaleY;
 
     // Draw the cropped image
-    ctx.drawImage(image, cropX, cropY, cropWidth, cropHeight, 0, 0, size, size);
+    ctx.drawImage(
+      image,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      size,
+      size
+    );
+
+    // Add a warning if the image resolution is too low
+    if (cropWidth < 1200 || cropHeight < 1200) {
+      console.warn("Image resolution is lower than optimal 1200x1200");
+      // TODO: Show a warning to the user
+    }
 
     // Convert to base64 and pass to parent
     const base64Image = canvas.toDataURL("image/png", 1.0);

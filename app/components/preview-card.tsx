@@ -1,9 +1,22 @@
 "use client";
 
+/**
+ * @fileoverview PreviewCard Component - FINAL VERSION (LOCKED)
+ *
+ * This is the final, approved version of the OIW social card preview.
+ * Layout specifications:
+ * - Left-aligned "I'm attending" text and OIW logo at the top
+ * - Centered 250x250px profile image
+ * - Centered "Talk to me about" section at the bottom
+ * - Consistent spacing and typography
+ *
+ * DO NOT modify this component without explicit approval.
+ */
+
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { toPng } from "html-to-image";
-import type { ImageGeneratorState } from "../types";
+import type { ImageGeneratorState } from "../types/index";
 
 interface PreviewCardProps {
   formData: ImageGeneratorState;
@@ -17,19 +30,13 @@ export function PreviewCard({ formData }: PreviewCardProps) {
       try {
         const image = await toPng(ref.current, {
           quality: 1.0,
-          pixelRatio: 2,
           cacheBust: true,
-          filter: (node) => {
-            // Ensure all images are captured
-            if (node instanceof HTMLImageElement) {
-              return true;
-            }
-            return true;
-          },
+          width: 1200,
+          height: 1200,
         });
         const link = document.createElement("a");
         link.href = image;
-        link.download = `oiw-social-card-${formData.firstName || "untitled"}.png`;
+        link.download = `oiw-social-card.png`;
         link.click();
       } catch (error) {
         console.error("Error generating image:", error);
@@ -48,7 +55,7 @@ export function PreviewCard({ formData }: PreviewCardProps) {
   return (
     <div
       ref={ref}
-      className="relative aspect-square overflow-hidden bg-[#1E0B2E]"
+      className="relative w-[1200px] h-[1200px] bg-[#1E0B2E]"
       data-oid="2r7_d--"
     >
       {/* Background Image */}
@@ -60,8 +67,9 @@ export function PreviewCard({ formData }: PreviewCardProps) {
           <Image
             src={formData.backgroundImage}
             alt="Background"
-            fill
-            className="object-cover"
+            width={1200}
+            height={1200}
+            className="object-cover w-full h-full"
             priority
             data-oid="7._lrns"
             unoptimized
@@ -71,14 +79,14 @@ export function PreviewCard({ formData }: PreviewCardProps) {
 
       {/* Content Container */}
       <div
-        className="relative z-10 h-full p-12 flex flex-col"
+        className="relative z-10 h-full p-[80px] flex flex-col"
         data-oid="d6a:mo0"
       >
-        {/* Top Section */}
-        <div className="flex flex-col items-start" data-oid="whozp_l">
+        {/* Top Section - Logo and Attending */}
+        <div className="w-full mb-[80px]" data-oid="whozp_l">
           {/* I'm attending text */}
           <h1
-            className="font-display text-4xl font-light text-[#F5F5DC] mb-6 pl-1"
+            className="font-display text-[100px] font-light text-[#F5F5DC] mb-8"
             data-oid="8rk35pj"
           >
             I&apos;m{" "}
@@ -87,98 +95,65 @@ export function PreviewCard({ formData }: PreviewCardProps) {
             </span>
           </h1>
 
-          {/* OIW Logo and Topics Row */}
-          <div
-            className="flex items-start gap-8 w-full pl-1"
-            data-oid="aweqgav"
-          >
-            {/* OIW Logo */}
-            <div className="w-[200px]" data-oid="ufxdcvb">
-              <Image
-                src="/GraphicAssets/Logo/OIW25_Logo_Date_RGB_Cream.png"
-                alt="Oslo Innovation Week 2025"
-                width={200}
-                height={66}
-                className="w-full h-auto"
-                priority
-                data-oid=".ecz.xq"
-              />
-            </div>
-
-            {/* Talk to me about */}
-            <div className="flex-1" data-oid="w78jnfs">
-              <p
-                className="text-[#F5F5DC] mb-2 text-[24px] text-right"
-                data-oid="0u9g-b6"
-              >
-                Talk to me about:
-              </p>
-              <div
-                className="flex flex-wrap gap-2 justify-end"
-                data-oid="7mjb4lk"
-              >
-                {formData.topics.map((topic, index) => (
-                  <span
-                    key={index}
-                    className="px-4 py-2 backdrop-blur-sm rounded-full text-[#F5F5DC] text-[24px] bg-[#1E0B2E]"
-                    data-oid="jztpq8k"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            </div>
+          {/* OIW Logo */}
+          <div className="w-[300px]" data-oid="ufxdcvb">
+            <Image
+              src="/GraphicAssets/Logo/OIW25_Logo_Date_RGB_Cream.png"
+              alt="Oslo Innovation Week 2025"
+              width={300}
+              height={98}
+              className="w-full h-auto"
+              priority
+              data-oid=".ecz.xq"
+            />
           </div>
         </div>
 
-        {/* Profile Section - Centered */}
-        <div
-          className="flex flex-col items-center mt-auto mb-4"
-          data-oid="zgn_6ei"
-        >
-          {/* Profile Image */}
+        {/* Profile Image - Centered */}
+        <div className="flex flex-col items-center mb-[80px]" data-oid="zgn_6ei">
           {formData.croppedProfileImage ? (
             <div
-              className="w-[200px] h-[200px] rounded-full overflow-hidden bg-gray-100 border-2 border-[#F5F5DC] mb-4"
+              className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]"
               data-oid=":-0t545"
             >
               <Image
                 src={formData.croppedProfileImage}
                 alt="Profile"
-                width={200}
-                height={200}
+                width={450}
+                height={450}
                 className="w-full h-full object-cover"
                 data-oid="c_48s7b"
               />
             </div>
           ) : (
             <div
-              className="w-[200px] h-[200px] rounded-full bg-gray-100 border-4 border-white/20 mb-4"
+              className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20"
               data-oid="2:f4.uj"
             />
           )}
+        </div>
 
-          {/* Text Content */}
-          <div className="text-center space-y-2" data-oid="6nzx5a.">
-            <div
-              className="backdrop-blur-sm rounded-full px-4 py-2 bg-[#1E0B2E]"
-              data-oid="rhay2cr"
-            >
-              <h2
-                className="text-2xl font-semibold text-[#F5F5DC]"
-                data-oid="hofzkwy"
+        {/* Talk to me about - Above Profile Section */}
+        <div className="w-full text-center mb-[40px] mt-[-40px]" data-oid="w78jnfs">
+          <p
+            className="text-[#F5F5DC] text-[48px] font-light mb-4"
+            data-oid="0u9g-b6"
+          >
+            Talk to me about:
+          </p>
+          <div
+            className="flex flex-wrap gap-4 justify-center"
+            data-oid="7mjb4lk"
+          >
+            {formData.topics.map((topic: string, index: number) => (
+              <span
+                key={index}
+                className="px-8 py-4 backdrop-blur-sm rounded-full text-[#F5F5DC] text-[40px] bg-[#1E0B2E]"
+                data-oid="jztpq8k"
               >
-                {formData.firstName} {formData.lastName}
-              </h2>
-            </div>
-            <div
-              className="backdrop-blur-sm rounded-full px-4 py-2 bg-[#1E0B2E]"
-              data-oid="d3bv-5e"
-            >
-              <p className="text-lg text-[#F5F5DC]" data-oid="djahq2:">
-                {formData.title}
-              </p>
-            </div>
+                {topic}
+              </span>
+            ))}
           </div>
         </div>
       </div>
