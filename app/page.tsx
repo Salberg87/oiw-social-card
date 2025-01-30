@@ -2,6 +2,7 @@
 
 import { ImageGenerator } from "./components/image-generator";
 import Image from "next/image";
+import { DIRECT_URLS } from "./utils/storage";
 
 export default function Home() {
   return (
@@ -9,13 +10,14 @@ export default function Home() {
       <main className="container mx-auto px-4 py-6 sm:py-12" data-oid="nvx4egw">
         <div className="mb-8 sm:mb-12 text-center" data-oid="2xqguc.">
           <Image
-            src="/GraphicAssets/Logo/OIW25_Logo_Date_RGB_BrightRed.png"
+            src={DIRECT_URLS.logos[0]}
             alt="Oslo Innovation Week 2025"
             width={400}
             height={133}
             className="mx-auto mb-6 w-[280px] sm:w-[400px] h-auto"
             priority
             data-oid="vp5s76o"
+            unoptimized
           />
 
           <h1

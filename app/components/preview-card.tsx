@@ -96,15 +96,16 @@ export function PreviewCard({ formData }: PreviewCardProps) {
           </h1>
 
           {/* OIW Logo */}
-          <div className="w-[300px]" data-oid="ufxdcvb">
+          <div className="w-[350px]" data-oid="ufxdcvb">
             <Image
-              src="/GraphicAssets/Logo/OIW25_Logo_Date_RGB_Cream.png"
+              src={formData.logoImage}
               alt="Oslo Innovation Week 2025"
-              width={300}
-              height={98}
+              width={350}
+              height={115}
               className="w-full h-auto"
               priority
               data-oid=".ecz.xq"
+              unoptimized
             />
           </div>
         </div>

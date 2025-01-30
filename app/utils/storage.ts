@@ -33,6 +33,19 @@ export const DEFAULT_ASSETS = {
 };
 
 /**
+ * Direct URLs for assets in Supabase storage
+ * Used as a fallback and for initial loading
+ */
+export const DIRECT_URLS = {
+    backgrounds: [
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.01.png`
+    ],
+    logos: [
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logos/OIW25_Logo_Date_RGB_BrightRed.png`
+    ]
+};
+
+/**
  * Configuration options for asset fetching and transformation
  */
 interface FetchOptions {
@@ -61,6 +74,8 @@ export async function fetchAssets(
 
     try {
         const supabase = createClient();
+        console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+        console.log(`Fetching assets from ${bucketName} bucket...`);
 
         // Get the list of files from the bucket
         const { data: files, error: listError } = await supabase
@@ -74,6 +89,13 @@ export async function fetchAssets(
 
         if (listError) {
             console.error(`Error listing ${bucketName}:`, listError);
+            return DEFAULT_ASSETS[bucketName];
+        }
+
+        console.log(`Found ${files?.length || 0} files in ${bucketName} bucket`);
+
+        if (!files || files.length === 0) {
+            console.error(`No files found in ${bucketName} bucket`);
             return DEFAULT_ASSETS[bucketName];
         }
 
@@ -92,13 +114,20 @@ export async function fetchAssets(
                                 format: options.format || 'webp'
                             }
                         });
+                    console.log(`Generated URL for ${file.name}:`, data.publicUrl);
                     return data.publicUrl;
                 })
         );
 
+        if (urls.length === 0) {
+            console.error(`No valid URLs generated for ${bucketName}`);
+            return DEFAULT_ASSETS[bucketName];
+        }
+
         // Cache the results
-        assetCache[bucketName] = urls.length > 0 ? urls : DEFAULT_ASSETS[bucketName];
-        return assetCache[bucketName];
+        assetCache[bucketName] = urls;
+        console.log(`Cached ${urls.length} URLs for ${bucketName}`);
+        return urls;
     } catch (error) {
         console.error(`Error in fetch${bucketName}:`, error);
         return DEFAULT_ASSETS[bucketName];
