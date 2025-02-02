@@ -142,7 +142,7 @@ export function ImageUploader({
         {triggerButton || (
           <Button
             variant="outline"
-            className="bg-white border-[#0071e1]/20 text-[#005338] hover:bg-[#0071e1]/5 text-base w-full sm:w-auto h-12"
+            className="bg-white border-[#0071e1]/20 text-[#000037] hover:bg-[#0071e1]/5 text-base w-full sm:w-auto h-12"
             data-oid="spk1b0u"
           >
             <Upload className="w-5 h-5 mr-2" data-oid="_e9:st." />
@@ -156,7 +156,7 @@ export function ImageUploader({
       >
         <DialogHeader className="space-y-2 sm:space-y-3" data-oid="ec1rj0r">
           <DialogTitle
-            className="text-[#005338] text-lg sm:text-2xl"
+            className="text-[#000037] text-lg sm:text-2xl"
             data-oid="d51i_oa"
           >
             Upload & Crop Image
@@ -183,17 +183,17 @@ export function ImageUploader({
                 data-oid="6vabi6j"
               >
                 <Upload
-                  className="w-10 h-10 sm:w-12 sm:h-12 mb-3 text-[#0071e1]"
+                  className="w-10 h-10 sm:w-12 sm:h-12 mb-3 text-[#000037]"
                   data-oid="ssndw0g"
                 />
                 <p
-                  className="text-base sm:text-lg text-[#005338]"
+                  className="text-base sm:text-lg text-[#000037]"
                   data-oid="f3n.cvc"
                 >
                   Upload Profile Picture
                 </p>
                 <p
-                  className="text-sm sm:text-base text-[#005338]/60 mt-2"
+                  className="text-sm sm:text-base text-[#000037]/60 mt-2"
                   data-oid="12szl-7"
                 >
                   PNG, JPG, JPEG (max. 5MB)
@@ -226,7 +226,7 @@ export function ImageUploader({
               >
                 <Button
                   onClick={handleCrop}
-                  className="bg-[#0071e1] text-white hover:bg-[#0071e1]/90 text-base h-10 sm:h-12"
+                  className="bg-[#000037] text-white hover:bg-[#000037]/90 text-base h-10 sm:h-12"
                   data-oid="p8_md-5"
                 >
                   Apply Crop

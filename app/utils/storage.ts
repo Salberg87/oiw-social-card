@@ -16,16 +16,16 @@ const assetCache: Record<string, string[]> = {
  */
 export const DEFAULT_ASSETS = {
     backgrounds: [
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.01.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.02.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.03.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.04.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.05.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.06.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.07.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.08.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.09.png",
-        "/GraphicAssets/backgrounds/OIW_GraphicAssets_16x9_02.10.png",
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.01.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.02.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.03.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.04.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.05.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.06.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.07.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.08.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.09.png`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.10.png`,
     ],
     logos: [
         "/GraphicAssets/Logo/OIW25_Logo_Date_RGB_Cream.png"
