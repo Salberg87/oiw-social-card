@@ -125,12 +125,7 @@ export function UserForm({
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    // First update the form with the selected suggestion
-    onChange({ ...formData, topics: [suggestion] });
-    // Then clear it after a brief moment
-    setTimeout(() => {
-      onChange({ ...formData, topics: [''] });
-    }, 100);
+    onChange({ ...formData, topics: [''] });
     setShowSuggestions(false);
     setSelectedIndex(-1);
     inputRef.current?.blur();
@@ -153,13 +148,7 @@ export function UserForm({
       case 'Enter':
         e.preventDefault();
         if (selectedIndex >= 0) {
-          const selectedSuggestion = filteredSuggestions[selectedIndex];
-          // First update with the selected suggestion
-          onChange({ ...formData, topics: [selectedSuggestion] });
-          // Then clear it after a brief moment
-          setTimeout(() => {
-            onChange({ ...formData, topics: [''] });
-          }, 100);
+          onChange({ ...formData, topics: [''] });
           setShowSuggestions(false);
           setSelectedIndex(-1);
           inputRef.current?.blur();
