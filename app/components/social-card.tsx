@@ -22,6 +22,8 @@ import {
 } from "../utils/backgrounds";
 import { fetchLogos, getLogo, LOGOS } from "../utils/logos";
 import { TOPICS, PLACEHOLDERS } from "../utils/constants";
+import { ImagePreview } from "./image-preview";
+import { Skeleton } from "./ui/skeleton";
 
 const defaultState: ImageGeneratorState = {
     profileImage: null,
@@ -31,11 +33,24 @@ const defaultState: ImageGeneratorState = {
     logoImage: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logos/OIW25_Logo_Date_RGB_Cream.png`
 };
 
+// Prefetch key images for improved performance
+export const preloadBackgrounds = () => {
+    const imageUrls = BACKGROUNDS?.length > 0 ?
+        BACKGROUNDS.slice(0, 3) : // Only prefetch first 3 backgrounds
+        [defaultState.backgroundImage];
+
+    imageUrls.forEach(url => {
+        const imgElement = document.createElement('img');
+        imgElement.src = url;
+    });
+};
+
 export function SocialCard() {
     const [formData, setFormData] = useState<ImageGeneratorState>(defaultState);
     const [backgrounds, setBackgrounds] = useState<string[]>([]);
     const [logos, setLogos] = useState<string[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isCapturing, setIsCapturing] = useState(false);
     const [renderContainer, setRenderContainer] = useState<HTMLElement | null>(null);
@@ -44,9 +59,13 @@ export function SocialCard() {
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const [category, setCategory] = useState<string>(SUGGESTIONS[0]);
     const [isEditing, setIsEditing] = useState(false);
+    const [bgImageLoaded, setBgImageLoaded] = useState(false);
+    const [profileImageLoaded, setProfileImageLoaded] = useState(false);
 
     useEffect(() => {
         setRenderContainer(document.getElementById('render-container'));
+        // Preload key backgrounds for better performance
+        preloadBackgrounds();
     }, []);
 
     // Asset loading
@@ -54,14 +73,11 @@ export function SocialCard() {
         const loadAssets = async () => {
             try {
                 setIsLoading(true);
-                console.log("[DEBUG] Initial backgroundImage:", formData.backgroundImage);
 
                 const [loadedBackgrounds, loadedLogos] = await Promise.all([
                     fetchBackgrounds().catch(() => []),
                     fetchLogos().catch(() => []),
                 ]);
-
-                console.log("[DEBUG] Loaded backgrounds:", loadedBackgrounds);
 
                 // Update the available backgrounds array without changing the current background
                 if (loadedBackgrounds.length > 0) {
@@ -69,13 +85,10 @@ export function SocialCard() {
 
                     // Only set initial background if none is selected or if forced refresh
                     if (!formData.backgroundImage || formData.backgroundImage === "") {
-                        console.log("[DEBUG] Setting initial background to:", loadedBackgrounds[0]);
                         setFormData((prev) => ({
                             ...prev,
                             backgroundImage: loadedBackgrounds[0]
                         }));
-                    } else {
-                        console.log("[DEBUG] Keeping existing background:", formData.backgroundImage);
                     }
                 }
 
@@ -85,21 +98,16 @@ export function SocialCard() {
 
                     // Only set initial logo if none is selected
                     if (!formData.logoImage || formData.logoImage === "") {
-                        console.log("[DEBUG] Setting initial logo to:", loadedLogos[0]);
                         setFormData((prev) => ({
                             ...prev,
                             logoImage: loadedLogos[0]
                         }));
-                    } else {
-                        console.log("[DEBUG] Keeping existing logo:", formData.logoImage);
                     }
                 }
             } catch (err) {
-                console.warn("Error loading assets, using default images:", err);
                 // Don't set error state to avoid UI disruption
-                // setError(err instanceof Error ? err.message : "Failed to load assets");
             } finally {
-                setIsLoading(false);
+                // Loading state is managed by image loading callbacks now
             }
         };
 
@@ -174,9 +182,6 @@ export function SocialCard() {
         const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % backgrounds.length;
         const nextBackground = backgrounds[nextIndex];
 
-        console.log(`[DEBUG] Changing background: ${currentIndex} -> ${nextIndex}`);
-        console.log(`[DEBUG] New background URL: ${nextBackground}`);
-
         if (nextBackground) {
             setFormData((prev) => ({
                 ...prev,
@@ -198,43 +203,58 @@ export function SocialCard() {
     };
 
     const handleDownload = async () => {
-        if (!previewRef.current) return;
-
+        setIsDownloading(true);
         try {
-            setIsCapturing(true);
-            setError(null);
+            // Set up render container
+            const container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.width = '1200px';
+            container.style.height = '1200px';
+            container.style.top = '-9999px';
+            container.style.left = '-9999px';
+            document.body.appendChild(container);
+            setRenderContainer(container);
 
-            // Wait for all images to load
-            await ensureAllImagesLoaded(previewRef.current);
+            // Slight delay to ensure portal renders
+            setTimeout(async () => {
+                try {
+                    if (!previewRef.current) {
+                        setError("Preview element not found");
+                        setIsDownloading(false);
+                        return;
+                    }
 
-            // Wait for next frame to ensure everything is rendered
-            await new Promise(resolve => requestAnimationFrame(resolve));
+                    setIsCapturing(true);
 
-            // Log the element being captured
-            console.log('Capturing element:', previewRef.current);
+                    // Wait for images to load
+                    await ensureAllImagesLoaded(previewRef.current);
 
-            // Capture the image
-            const image = await toPng(previewRef.current, {
-                quality: 1.0,
-                pixelRatio: 2,
-                cacheBust: true,
-                style: {
-                    // Ensure the element is rendered during capture
-                    visibility: 'visible',
-                    opacity: '1'
+                    const dataUrl = await toPng(previewRef.current, {
+                        quality: 0.95,
+                        pixelRatio: 1
+                    });
+
+                    const link = document.createElement('a');
+                    link.download = 'oiw-social-card.png';
+                    link.href = dataUrl;
+                    link.click();
+
+                    // Clean up
+                    document.body.removeChild(container);
+                    setRenderContainer(null);
+                    setIsCapturing(false);
+                    setIsDownloading(false);
+                } catch (err) {
+                    console.error("Error generating image");
+                    setError("Failed to generate image");
+                    setIsCapturing(false);
+                    setIsDownloading(false);
                 }
-            });
-
-            // Create download link
-            const link = document.createElement("a");
-            link.href = image;
-            link.download = `oiw-social-card.png`;
-            link.click();
+            }, 100);
         } catch (err) {
-            console.error("Error generating image:", err);
-            setError("Failed to generate image. Please try again.");
-        } finally {
-            setIsCapturing(false);
+            console.error("Error in download process");
+            setError("Failed to start download process");
+            setIsDownloading(false);
         }
     };
 
@@ -266,7 +286,7 @@ export function SocialCard() {
         <>
             <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
                 {/* Form Section */}
-                <div className="w-full lg:w-[530px] flex-shrink-0">
+                <div className="w-full lg:w-[530px] flex-shrink-0 relative z-20">
                     <UserForm
                         formData={formData}
                         onChange={handleFormChange}
@@ -281,7 +301,7 @@ export function SocialCard() {
                 </div>
 
                 {/* Preview Card Section */}
-                <div className="w-full aspect-square lg:w-[500px] xl:w-[600px] relative mt-6 lg:mt-0" ref={previewContainerRef}>
+                <div className="w-full aspect-square lg:w-[500px] xl:w-[600px] relative mt-6 lg:mt-0 z-20" ref={previewContainerRef}>
                     {/* Visible Preview */}
                     <div className="relative w-full h-full overflow-hidden rounded-xl">
                         <div
@@ -292,16 +312,26 @@ export function SocialCard() {
                             }}
                         >
                             <div className="w-full h-full relative">
+                                {!bgImageLoaded && (
+                                    <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
+                                )}
                                 <Image
                                     src={formData.backgroundImage}
                                     alt="Background"
                                     fill
-                                    className="object-cover"
-                                    priority
-                                    unoptimized
+                                    sizes="100vw"
+                                    className={`object-cover transition-opacity duration-300 ${bgImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                    priority={true}
+                                    quality={90}
                                     crossOrigin="anonymous"
+                                    onLoad={() => {
+                                        setBgImageLoaded(true);
+                                        setIsLoading(false);
+                                    }}
                                     onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                        console.error("[DEBUG] Image error loading:", formData.backgroundImage, e);
+                                        setIsLoading(false);
+                                        setBgImageLoaded(true); // Show fallback content
+                                        setError("Failed to load background image");
                                     }}
                                 />
                                 <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
@@ -317,16 +347,21 @@ export function SocialCard() {
 
                                     <div className="flex justify-center mb-20">
                                         {formData.croppedProfileImage ? (
-                                            <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
+                                            <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC] relative">
+                                                {!profileImageLoaded && (
+                                                    <Skeleton className="absolute inset-0 w-full h-full rounded-full" />
+                                                )}
                                                 <Image
                                                     src={formData.croppedProfileImage}
                                                     alt="Profile"
                                                     width={450}
                                                     height={450}
-                                                    className="w-full h-full object-cover"
+                                                    className={`w-full h-full object-cover transition-opacity duration-300 ${profileImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                                                     crossOrigin="anonymous"
+                                                    onLoad={() => setProfileImageLoaded(true)}
                                                     onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                                        console.error("[DEBUG] Profile image error:", e);
+                                                        setProfileImageLoaded(true); // Show fallback content
+                                                        setError("Failed to load profile image");
                                                     }}
                                                 />
                                             </div>
@@ -377,12 +412,13 @@ export function SocialCard() {
                             src={formData.backgroundImage}
                             alt="Background"
                             fill
+                            sizes="100vw"
                             className="object-cover"
-                            priority
-                            unoptimized
+                            priority={true}
+                            quality={90}
                             crossOrigin="anonymous"
                             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                console.error("[DEBUG] Image error loading:", formData.backgroundImage, e);
+                                setError("Failed to load background image");
                             }}
                         />
                         <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
@@ -407,7 +443,7 @@ export function SocialCard() {
                                             className="w-full h-full object-cover"
                                             crossOrigin="anonymous"
                                             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                                console.error("[DEBUG] Profile image error:", e);
+                                                setError("Failed to load profile image");
                                             }}
                                         />
                                     </div>

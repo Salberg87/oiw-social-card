@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { displayFont, bodyFont } from "./fonts";
 import "./globals.css";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Oslo Innovation Week Social Card Generator",
   description:
     "Create your personalized social media card for Oslo Innovation Week 2025. Share your presence and connect with other attendees.",
+  other: {
+    'nextjs-font-optimization': 'true',
+  }
 };
 
 export default function RootLayout({
@@ -20,9 +24,33 @@ export default function RootLayout({
       className={`${displayFont.variable} ${bodyFont.variable}`}
       data-oid="m1397_8"
     >
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/fonts/Circular/CircularStd-Book.otf"
+          as="font"
+          type="font/otf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/fonts/PP Editorial New/PPEditorialNew-Ultralight.otf"
+          as="font"
+          type="font/otf"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body data-oid="y.zev82">
         {children}
         <SpeedInsights />
+
+        {/* This is a placeholder script - replace with actual analytics in production */}
+        {/* 
+        <Script
+          src="https://cdn.your-analytics-provider.com/script.js"
+          strategy="lazyOnload"
+        />
+        */}
       </body>
     </html>
   );

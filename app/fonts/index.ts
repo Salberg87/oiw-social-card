@@ -9,7 +9,7 @@ export const displayFont = localFont({
             style: 'italic'
         },
         {
-            path: '/fonts/PP Editorial New/PPEditorialNew-Ultralight.otf',
+            path: './fonts/PP Editorial New/PPEditorialNew-Ultralight.otf',
             weight: '400',
             style: 'normal'
         }
@@ -46,5 +46,6 @@ export const bodyFont = localFont({
             style: 'normal'
         }
     ],
-    variable: '--font-body'
+    variable: '--font-body',
+    display: 'swap',
 })

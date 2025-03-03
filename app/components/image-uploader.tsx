@@ -67,42 +67,34 @@ export function ImageUploader({
   };
 
   const handleCrop = () => {
-    if (!imageRef.current || !crop?.width || !crop?.height) {
-      console.log("Missing image or crop data", {
-        crop,
-        imageRef: imageRef.current,
-      });
+    if (!selectedImage || !crop) {
+      // Silent fail - don't show errors to end users in production
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const size = 800; // Output size
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      // Silent fail - don't show errors to end users in production
+      return;
+    }
+
+    // Calculate the crop dimensions
+    if (!imageRef.current) {
       return;
     }
 
     const image = imageRef.current;
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      console.log("No 2d context");
-      return;
-    }
-
-    // Set desired output size to 1200x1200 for high resolution
-    const size = 1200;
-    canvas.width = size;
-    canvas.height = size;
-
-    // Create circular clip
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-    ctx.clip();
-
-    // Calculate scaling
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-
-    // Calculate crop area in actual pixels
-    const cropX = ((crop.x * image.width) / 100) * scaleX;
-    const cropY = ((crop.y * image.height) / 100) * scaleY;
-    const cropWidth = ((crop.width * image.width) / 100) * scaleX;
-    const cropHeight = ((crop.height * image.height) / 100) * scaleY;
+    const cropX = crop.x * scaleX;
+    const cropY = crop.y * scaleY;
+    const cropWidth = crop.width * scaleX;
+    const cropHeight = crop.height * scaleY;
 
     // Draw the cropped image
     ctx.drawImage(
@@ -119,8 +111,8 @@ export function ImageUploader({
 
     // Add a warning if the image resolution is too low
     if (cropWidth < 1200 || cropHeight < 1200) {
-      console.warn("Image resolution is lower than optimal 1200x1200");
-      // TODO: Show a warning to the user
+      // Log warning but don't show to user in production
+      // TODO: Show a warning to the user via UI
     }
 
     // Convert to base64 and pass to parent

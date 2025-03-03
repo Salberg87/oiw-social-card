@@ -74,8 +74,9 @@ export async function fetchAssets(
 
     try {
         const supabase = createClient();
-        console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-        console.log(`Fetching assets from ${bucketName} bucket...`);
+        // Remove debug logs in production
+        // console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+        // console.log(`Fetching assets from ${bucketName} bucket...`);
 
         // Get the list of files from the bucket
         const { data: files, error: listError } = await supabase
@@ -88,7 +89,7 @@ export async function fetchAssets(
             });
 
         if (listError) {
-            console.warn(`Error listing ${bucketName}, falling back to direct URLs:`, listError);
+            console.warn(`Error listing ${bucketName}, falling back to direct URLs`);
             // Store direct URLs in cache to prevent repeated failed attempts
             assetCache[bucketName] = DIRECT_URLS[bucketName];
             return DIRECT_URLS[bucketName];
@@ -107,15 +108,17 @@ export async function fetchAssets(
                 .filter(file => file.name.endsWith('.png'))
                 .map(async (file: FileObject) => {
                     try {
+                        // MODIFIED: Remove transform options entirely
                         const { data } = supabase
                             .storage
                             .from(bucketName)
                             .getPublicUrl(file.name);
 
-                        console.log(`[DEBUG] Loaded ${bucketName} file: ${file.name} -> ${data.publicUrl}`);
+                        // Remove debug logs in production
+                        // console.log(`[DEBUG] Loaded ${bucketName} file: ${file.name} -> ${data.publicUrl}`);
                         return data.publicUrl;
                     } catch (error) {
-                        console.error(`Error getting URL for ${file.name}:`, error);
+                        console.error(`Error getting URL for ${file.name}`);
                         return null;
                     }
                 })
@@ -132,10 +135,11 @@ export async function fetchAssets(
 
         // Cache the valid URLs
         assetCache[bucketName] = validUrls;
-        console.log(`[DEBUG] Successfully loaded ${validUrls.length} ${bucketName}:`, validUrls);
+        // Remove debug logs in production
+        // console.log(`[DEBUG] Successfully loaded ${validUrls.length} ${bucketName}:`, validUrls);
         return validUrls;
     } catch (error) {
-        console.error(`Error fetching ${bucketName}:`, error);
+        console.error(`Error fetching ${bucketName}`);
         return DIRECT_URLS[bucketName];
     }
 }
@@ -166,10 +170,12 @@ export const getPublicUrl = (
 ) => {
     const baseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
 
-    console.log("[DEBUG] getPublicUrl - Base URL:", baseUrl);
+    // Remove debug logs in production
+    // console.log("[DEBUG] getPublicUrl - Base URL:", baseUrl);
 
     if (!transformOptions) {
-        console.log("[DEBUG] getPublicUrl - Final URL (no transform):", baseUrl);
+        // Remove debug logs in production
+        // console.log("[DEBUG] getPublicUrl - Final URL (no transform):", baseUrl);
         return baseUrl;
     }
 
@@ -184,7 +190,8 @@ export const getPublicUrl = (
     const queryString = transformQuery.toString();
 
     const finalUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
-    console.log("[DEBUG] getPublicUrl - Final URL (with transform):", finalUrl);
+    // Remove debug logs in production
+    // console.log("[DEBUG] getPublicUrl - Final URL (with transform):", finalUrl);
 
     return finalUrl;
 }; 
