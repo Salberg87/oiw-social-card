@@ -42,7 +42,7 @@ export function SocialCard() {
     const previewRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(0.5);
     const previewContainerRef = useRef<HTMLDivElement>(null);
-    const [category, setCategory] = useState(SUGGESTIONS[0]);
+    const [category, setCategory] = useState<string>(SUGGESTIONS[0]);
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
@@ -54,26 +54,50 @@ export function SocialCard() {
         const loadAssets = async () => {
             try {
                 setIsLoading(true);
+                console.log("[DEBUG] Initial backgroundImage:", formData.backgroundImage);
+
                 const [loadedBackgrounds, loadedLogos] = await Promise.all([
-                    fetchBackgrounds(),
-                    fetchLogos(),
+                    fetchBackgrounds().catch(() => []),
+                    fetchLogos().catch(() => []),
                 ]);
 
-                // Only update if we actually got new backgrounds
+                console.log("[DEBUG] Loaded backgrounds:", loadedBackgrounds);
+
+                // Update the available backgrounds array without changing the current background
                 if (loadedBackgrounds.length > 0) {
                     setBackgrounds(loadedBackgrounds);
-                    setFormData((prev) => ({
-                        ...prev,
-                        backgroundImage: loadedBackgrounds[0]
-                    }));
+
+                    // Only set initial background if none is selected or if forced refresh
+                    if (!formData.backgroundImage || formData.backgroundImage === "") {
+                        console.log("[DEBUG] Setting initial background to:", loadedBackgrounds[0]);
+                        setFormData((prev) => ({
+                            ...prev,
+                            backgroundImage: loadedBackgrounds[0]
+                        }));
+                    } else {
+                        console.log("[DEBUG] Keeping existing background:", formData.backgroundImage);
+                    }
                 }
 
+                // Update available logos without changing current logo
                 if (loadedLogos.length > 0) {
                     setLogos(loadedLogos);
+
+                    // Only set initial logo if none is selected
+                    if (!formData.logoImage || formData.logoImage === "") {
+                        console.log("[DEBUG] Setting initial logo to:", loadedLogos[0]);
+                        setFormData((prev) => ({
+                            ...prev,
+                            logoImage: loadedLogos[0]
+                        }));
+                    } else {
+                        console.log("[DEBUG] Keeping existing logo:", formData.logoImage);
+                    }
                 }
             } catch (err) {
-                console.error("Error loading assets:", err);
-                setError(err instanceof Error ? err.message : "Failed to load assets");
+                console.warn("Error loading assets, using default images:", err);
+                // Don't set error state to avoid UI disruption
+                // setError(err instanceof Error ? err.message : "Failed to load assets");
             } finally {
                 setIsLoading(false);
             }
@@ -140,10 +164,18 @@ export function SocialCard() {
     };
 
     const handleChangeBackground = () => {
-        if (backgrounds.length === 0) return;
+        if (backgrounds.length === 0) {
+            console.warn("No backgrounds available to change to");
+            return;
+        }
+
         const currentIndex = backgrounds.indexOf(formData.backgroundImage);
-        const nextIndex = (currentIndex + 1) % backgrounds.length;
+        // If current background is not in the array, start from the first one
+        const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % backgrounds.length;
         const nextBackground = backgrounds[nextIndex];
+
+        console.log(`[DEBUG] Changing background: ${currentIndex} -> ${nextIndex}`);
+        console.log(`[DEBUG] New background URL: ${nextBackground}`);
 
         if (nextBackground) {
             setFormData((prev) => ({
@@ -259,54 +291,64 @@ export function SocialCard() {
                                 transformOrigin: 'center center'
                             }}
                         >
-                            <Image
-                                src={formData.backgroundImage}
-                                alt="Background"
-                                fill
-                                className="object-cover"
-                                priority
-                                unoptimized
-                            />
-                            <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
-                                <div className="flex justify-between items-start mb-auto">
-                                    <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
-                                        I&apos;m{" "}
-                                        <span className="italic">attending</span>
-                                    </h1>
-                                    <div className="w-[350px]">
-                                        <Logo variant="cream" width={350} height={115} />
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-center mb-20">
-                                    {formData.croppedProfileImage ? (
-                                        <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
-                                            <Image
-                                                src={formData.croppedProfileImage}
-                                                alt="Profile"
-                                                width={450}
-                                                height={450}
-                                                className="w-full h-full object-cover"
-                                            />
+                            <div className="w-full h-full relative">
+                                <Image
+                                    src={formData.backgroundImage}
+                                    alt="Background"
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                    unoptimized
+                                    crossOrigin="anonymous"
+                                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                        console.error("[DEBUG] Image error loading:", formData.backgroundImage, e);
+                                    }}
+                                />
+                                <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
+                                    <div className="flex justify-between items-start mb-auto">
+                                        <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
+                                            I&apos;m{" "}
+                                            <span className="italic">attending</span>
+                                        </h1>
+                                        <div className="w-[350px]">
+                                            <Logo variant="cream" width={350} height={115} />
                                         </div>
-                                    ) : (
-                                        <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
-                                    )}
-                                </div>
+                                    </div>
 
-                                <div className="text-center">
-                                    <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
-                                        Talk to me about:
-                                    </p>
-                                    <div className="flex flex-wrap gap-4 justify-center">
-                                        {formData.topics.map((topic: string, index: number) => (
-                                            <span
-                                                key={index}
-                                                className="px-8 py-4 backdrop-blur-sm rounded-full text-[#F5F5DC] text-[40px] bg-[#1E0B2E]"
-                                            >
-                                                {topic}
-                                            </span>
-                                        ))}
+                                    <div className="flex justify-center mb-20">
+                                        {formData.croppedProfileImage ? (
+                                            <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
+                                                <Image
+                                                    src={formData.croppedProfileImage}
+                                                    alt="Profile"
+                                                    width={450}
+                                                    height={450}
+                                                    className="w-full h-full object-cover"
+                                                    crossOrigin="anonymous"
+                                                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                                        console.error("[DEBUG] Profile image error:", e);
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
+                                        )}
+                                    </div>
+
+                                    <div className="text-center">
+                                        <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
+                                            Talk to me about:
+                                        </p>
+                                        <div className="flex flex-wrap gap-4 justify-center">
+                                            {formData.topics.map((topic: string, index: number) => (
+                                                <span
+                                                    key={index}
+                                                    className="px-8 py-4 backdrop-blur-sm rounded-full text-[#F5F5DC] text-[40px] bg-[#1E0B2E]"
+                                                >
+                                                    {topic}
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -330,54 +372,64 @@ export function SocialCard() {
                     ref={previewRef}
                     className="w-[1200px] h-[1200px] bg-[#000037] pointer-events-none select-none"
                 >
-                    <Image
-                        src={formData.backgroundImage}
-                        alt="Background"
-                        fill
-                        className="object-cover"
-                        priority
-                        unoptimized
-                    />
-                    <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
-                        <div className="flex justify-between items-start mb-auto">
-                            <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
-                                I&apos;m{" "}
-                                <span className="italic">attending</span>
-                            </h1>
-                            <div className="w-[350px]">
-                                <Logo variant="cream" width={350} height={115} />
-                            </div>
-                        </div>
-
-                        <div className="flex justify-center mb-20">
-                            {formData.croppedProfileImage ? (
-                                <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
-                                    <Image
-                                        src={formData.croppedProfileImage}
-                                        alt="Profile"
-                                        width={450}
-                                        height={450}
-                                        className="w-full h-full object-cover"
-                                    />
+                    <div className="w-full h-full relative">
+                        <Image
+                            src={formData.backgroundImage}
+                            alt="Background"
+                            fill
+                            className="object-cover"
+                            priority
+                            unoptimized
+                            crossOrigin="anonymous"
+                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                console.error("[DEBUG] Image error loading:", formData.backgroundImage, e);
+                            }}
+                        />
+                        <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
+                            <div className="flex justify-between items-start mb-auto">
+                                <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
+                                    I&apos;m{" "}
+                                    <span className="italic">attending</span>
+                                </h1>
+                                <div className="w-[350px]">
+                                    <Logo variant="cream" width={350} height={115} />
                                 </div>
-                            ) : (
-                                <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
-                            )}
-                        </div>
+                            </div>
 
-                        <div className="text-center">
-                            <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
-                                Talk to me about:
-                            </p>
-                            <div className="flex flex-wrap gap-4 justify-center">
-                                {formData.topics.map((topic: string, index: number) => (
-                                    <span
-                                        key={index}
-                                        className="px-8 py-4 backdrop-blur-sm rounded-full text-[#F5F5DC] text-[40px] bg-[#1E0B2E]"
-                                    >
-                                        {topic}
-                                    </span>
-                                ))}
+                            <div className="flex justify-center mb-20">
+                                {formData.croppedProfileImage ? (
+                                    <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
+                                        <Image
+                                            src={formData.croppedProfileImage}
+                                            alt="Profile"
+                                            width={450}
+                                            height={450}
+                                            className="w-full h-full object-cover"
+                                            crossOrigin="anonymous"
+                                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                                console.error("[DEBUG] Profile image error:", e);
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
+                                )}
+                            </div>
+
+                            <div className="text-center">
+                                <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
+                                    Talk to me about:
+                                </p>
+                                <div className="flex flex-wrap gap-4 justify-center">
+                                    {formData.topics.map((topic: string, index: number) => (
+                                        <span
+                                            key={index}
+                                            className="px-8 py-4 backdrop-blur-sm rounded-full text-[#F5F5DC] text-[40px] bg-[#1E0B2E]"
+                                        >
+                                            {topic}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

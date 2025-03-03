@@ -88,15 +88,17 @@ export async function fetchAssets(
             });
 
         if (listError) {
-            console.error(`Error listing ${bucketName}:`, listError);
-            return DEFAULT_ASSETS[bucketName];
+            console.warn(`Error listing ${bucketName}, falling back to direct URLs:`, listError);
+            // Store direct URLs in cache to prevent repeated failed attempts
+            assetCache[bucketName] = DIRECT_URLS[bucketName];
+            return DIRECT_URLS[bucketName];
         }
 
-        console.log(`Found ${files?.length || 0} files in ${bucketName} bucket`);
-
         if (!files || files.length === 0) {
-            console.error(`No files found in ${bucketName} bucket`);
-            return DEFAULT_ASSETS[bucketName];
+            console.warn(`No files found in ${bucketName} bucket, using direct URLs`);
+            // Store direct URLs in cache to prevent repeated failed attempts
+            assetCache[bucketName] = DIRECT_URLS[bucketName];
+            return DIRECT_URLS[bucketName];
         }
 
         // Get public URLs for all PNG files
@@ -104,33 +106,37 @@ export async function fetchAssets(
             (files as FileObject[])
                 .filter(file => file.name.endsWith('.png'))
                 .map(async (file: FileObject) => {
-                    const { data } = supabase
-                        .storage
-                        .from(bucketName)
-                        .getPublicUrl(file.name, {
-                            transform: {
-                                ...options,
-                                quality: options.quality || 75,
-                                format: options.format || 'webp'
-                            }
-                        });
-                    console.log(`Generated URL for ${file.name}:`, data.publicUrl);
-                    return data.publicUrl;
+                    try {
+                        const { data } = supabase
+                            .storage
+                            .from(bucketName)
+                            .getPublicUrl(file.name);
+
+                        console.log(`[DEBUG] Loaded ${bucketName} file: ${file.name} -> ${data.publicUrl}`);
+                        return data.publicUrl;
+                    } catch (error) {
+                        console.error(`Error getting URL for ${file.name}:`, error);
+                        return null;
+                    }
                 })
         );
 
-        if (urls.length === 0) {
-            console.error(`No valid URLs generated for ${bucketName}`);
-            return DEFAULT_ASSETS[bucketName];
+        // Filter out any null values from errors
+        const validUrls = urls.filter(Boolean) as string[];
+
+        if (validUrls.length === 0) {
+            console.warn(`No valid URLs found for ${bucketName}, using direct URLs`);
+            assetCache[bucketName] = DIRECT_URLS[bucketName];
+            return DIRECT_URLS[bucketName];
         }
 
-        // Cache the results
-        assetCache[bucketName] = urls;
-        console.log(`Cached ${urls.length} URLs for ${bucketName}`);
-        return urls;
+        // Cache the valid URLs
+        assetCache[bucketName] = validUrls;
+        console.log(`[DEBUG] Successfully loaded ${validUrls.length} ${bucketName}:`, validUrls);
+        return validUrls;
     } catch (error) {
-        console.error(`Error in fetch${bucketName}:`, error);
-        return DEFAULT_ASSETS[bucketName];
+        console.error(`Error fetching ${bucketName}:`, error);
+        return DIRECT_URLS[bucketName];
     }
 }
 
@@ -151,4 +157,34 @@ export const getAssetBySeed = (
     }
     const total = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return assets[total % assets.length];
+};
+
+export const getPublicUrl = (
+    bucket: string,
+    path: string,
+    transformOptions?: FetchOptions
+) => {
+    const baseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
+
+    console.log("[DEBUG] getPublicUrl - Base URL:", baseUrl);
+
+    if (!transformOptions) {
+        console.log("[DEBUG] getPublicUrl - Final URL (no transform):", baseUrl);
+        return baseUrl;
+    }
+
+    const { width, height, quality, format } = transformOptions;
+
+    const transformQuery = new URLSearchParams();
+    if (width) transformQuery.append("width", width.toString());
+    if (height) transformQuery.append("height", height.toString());
+    if (quality) transformQuery.append("quality", quality.toString());
+    if (format) transformQuery.append("format", format);
+
+    const queryString = transformQuery.toString();
+
+    const finalUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+    console.log("[DEBUG] getPublicUrl - Final URL (with transform):", finalUrl);
+
+    return finalUrl;
 }; 

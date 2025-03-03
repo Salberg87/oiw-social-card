@@ -35,6 +35,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# editor/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.cursor/
+
 # Allow specific asset folders
 !public/GraphicAssets/Logo/*.png
 !public/GraphicAssets/backgrounds/*.png
@@ -43,3 +50,10 @@ next-env.d.ts
 /public/GraphicAssets/backgrounds/
 *.jpg
 *.png
+
+# Logs
+logs
+*.log
+
+# System Files
+Thumbs.db
