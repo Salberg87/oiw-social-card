@@ -73,7 +73,7 @@ export function ImageUploader({
     }
 
     const canvas = document.createElement("canvas");
-    const size = 800; // Output size
+    const size = 1200; // Increased output size for better quality
     canvas.width = size;
     canvas.height = size;
 
@@ -91,10 +91,20 @@ export function ImageUploader({
     const image = imageRef.current;
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    const cropX = crop.x * scaleX;
-    const cropY = crop.y * scaleY;
-    const cropWidth = crop.width * scaleX;
-    const cropHeight = crop.height * scaleY;
+
+    // Ensure we're using the correct scaling factors
+    const cropX = (crop.x / 100) * image.naturalWidth;
+    const cropY = (crop.y / 100) * image.naturalHeight;
+    const cropWidth = (crop.width / 100) * image.naturalWidth;
+    const cropHeight = (crop.height / 100) * image.naturalHeight;
+
+    // Draw the cropped image with proper anti-aliasing
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // Fill with background color first to avoid transparency issues
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
 
     // Draw the cropped image
     ctx.drawImage(
@@ -110,8 +120,9 @@ export function ImageUploader({
     );
 
     // Add a warning if the image resolution is too low
-    if (cropWidth < 1200 || cropHeight < 1200) {
+    if (cropWidth < 800 || cropHeight < 800) {
       // Log warning but don't show to user in production
+      console.warn("Image resolution may be too low for optimal quality");
       // TODO: Show a warning to the user via UI
     }
 

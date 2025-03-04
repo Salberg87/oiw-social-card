@@ -25,20 +25,7 @@ export default function RootLayout({
       data-oid="m1397_8"
     >
       <head>
-        <link
-          rel="preload"
-          href="/fonts/fonts/Circular/CircularStd-Book.otf"
-          as="font"
-          type="font/otf"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/fonts/PP Editorial New/PPEditorialNew-Ultralight.otf"
-          as="font"
-          type="font/otf"
-          crossOrigin="anonymous"
-        />
+        {/* No need for manual preload links as Next.js handles font optimization */}
       </head>
       <body data-oid="y.zev82">
         {children}

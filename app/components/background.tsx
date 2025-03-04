@@ -23,16 +23,22 @@ export function Background({
     const paddedIndex = index.toString().padStart(2, '0');
     const fileName = `OIW_GraphicAssets_16x9_02.${paddedIndex}.png`;
     const backgroundUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/${fileName}`;
+    const fallbackUrl = `/GraphicAssets/backgrounds/${fileName}`;
 
     const handleLoad = () => {
         setIsLoading(false);
         onLoad?.();
     };
 
+    const handleError = () => {
+        setError("Failed to load background, using fallback image");
+        setIsLoading(false);
+    };
+
     return (
-        <div className={`fixed inset-0 -z-10 ${className}`}>
+        <div className={`fixed inset-0 -z-10 ${className}`} style={{ zIndex: -1 }}>
             <Image
-                src={backgroundUrl}
+                src={error ? fallbackUrl : backgroundUrl}
                 alt={`Background ${index}`}
                 fill
                 className={`

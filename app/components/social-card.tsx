@@ -268,6 +268,8 @@ export function SocialCard() {
         setCategory(e.target.value);
     };
 
+    const previewClasses = "relative w-full aspect-square overflow-hidden rounded-xl";
+
     if (error) {
         return (
             <div className="text-center p-4">
@@ -301,7 +303,7 @@ export function SocialCard() {
                 </div>
 
                 {/* Preview Card Section */}
-                <div className="w-full aspect-square lg:w-[500px] xl:w-[600px] relative mt-6 lg:mt-0 z-20" ref={previewContainerRef}>
+                <div className={previewClasses} ref={previewContainerRef}>
                     {/* Visible Preview */}
                     <div className="relative w-full h-full overflow-hidden rounded-xl">
                         <div
@@ -341,7 +343,16 @@ export function SocialCard() {
                                             <span className="italic">attending</span>
                                         </h1>
                                         <div className="w-[350px]">
-                                            <Logo variant="cream" width={350} height={115} />
+                                            <Image
+                                                src={formData.logoImage}
+                                                alt="Oslo Innovation Week 2025"
+                                                width={350}
+                                                height={115}
+                                                className="w-full h-auto"
+                                                priority={true}
+                                                unoptimized={true}
+                                                crossOrigin="anonymous"
+                                            />
                                         </div>
                                     </div>
 
@@ -428,7 +439,16 @@ export function SocialCard() {
                                     <span className="italic">attending</span>
                                 </h1>
                                 <div className="w-[350px]">
-                                    <Logo variant="cream" width={350} height={115} />
+                                    <Image
+                                        src={formData.logoImage}
+                                        alt="Oslo Innovation Week 2025"
+                                        width={350}
+                                        height={115}
+                                        className="w-full h-auto"
+                                        priority={true}
+                                        unoptimized={true}
+                                        crossOrigin="anonymous"
+                                    />
                                 </div>
                             </div>
 
