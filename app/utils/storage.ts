@@ -108,15 +108,17 @@ export async function fetchAssets(
                 .filter(file => file.name.endsWith('.png'))
                 .map(async (file: FileObject) => {
                     try {
-                        // MODIFIED: Remove transform options entirely
-                        const { data } = supabase
+                        const { data, error } = await supabase
                             .storage
                             .from(bucketName)
-                            .getPublicUrl(file.name);
+                            .download(file.name);
 
-                        // Remove debug logs in production
-                        // console.log(`[DEBUG] Loaded ${bucketName} file: ${file.name} -> ${data.publicUrl}`);
-                        return data.publicUrl;
+                        if (error || !data) {
+                            console.error(`Error downloading ${file.name}:`, error);
+                            return null;
+                        }
+
+                        return URL.createObjectURL(data);
                     } catch (error) {
                         console.error(`Error getting URL for ${file.name}`);
                         return null;

@@ -4,12 +4,12 @@ import localFont from 'next/font/local'
 export const displayFont = localFont({
     src: [
         {
-            path: './fonts/PP Editorial New/PPEditorialNew-UltralightItalic.otf',
+            path: './PP Editorial New/PPEditorialNew-UltralightItalic.otf',
             weight: '200',
             style: 'italic'
         },
         {
-            path: './fonts/PP Editorial New/PPEditorialNew-Ultralight.otf',
+            path: './PP Editorial New/PPEditorialNew-Ultralight.otf',
             weight: '400',
             style: 'normal'
         }
@@ -21,27 +21,27 @@ export const displayFont = localFont({
 export const bodyFont = localFont({
     src: [
         {
-            path: './fonts/Circular/CircularStd-Book.otf',
+            path: './Circular/CircularStd-Book.otf',
             weight: '400',
             style: 'normal'
         },
         {
-            path: './fonts/Circular/CircularStd-BookItalic.otf',
+            path: './Circular/CircularStd-BookItalic.otf',
             weight: '400',
             style: 'italic'
         },
         {
-            path: './fonts/Circular/CircularStd-Medium.otf',
+            path: './Circular/CircularStd-Medium.otf',
             weight: '500',
             style: 'normal'
         },
         {
-            path: './fonts/Circular/CircularStd-Bold.otf',
+            path: './Circular/CircularStd-Bold.otf',
             weight: '700',
             style: 'normal'
         },
         {
-            path: './fonts/Circular/CircularStd-Black.otf',
+            path: './Circular/CircularStd-Black.otf',
             weight: '900',
             style: 'normal'
         }

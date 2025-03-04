@@ -1,0 +1,40 @@
+# Project Structure Visualization
+
+```mermaid
+graph TD
+    %% Define colors and styles
+    classDef layout fill:#f96,stroke:#333,stroke-width:2px,color:#fff
+    classDef page fill:#6cf,stroke:#333,stroke-width:2px,color:#fff
+    classDef component fill:#9cf,stroke:#333,stroke-width:1px,color:#000
+    classDef utility fill:#fc6,stroke:#333,stroke-width:1px,color:#000
+    classDef font fill:#6cf,stroke:#333,stroke-width:1px,color:#000
+
+    %% Nodes and connections
+    layout[layout.tsx - Main layout wrapper]:::layout --> fonts[fonts/index.ts - Custom font definitions]:::font
+    layout --> page[page.tsx - Main page component]:::page
+    page --> socialCard[social-card.tsx - Combines form and preview rendering]:::component
+    socialCard --> userForm[user-form.tsx - Handles user input and interactions]:::component
+    socialCard --> imagePreview[image-preview.tsx - Displays the generated social card preview]:::component
+
+    userForm --> input[input.tsx - Input field component]:::component
+    userForm --> label[label.tsx - Label component for form fields]:::component
+    userForm --> select[select.tsx - Dropdown select component]:::component
+    userForm --> radioGroup[radio-group.tsx - Radio button group component]:::component
+    userForm --> button[button.tsx - Button component]:::component
+    userForm --> imageUploader[image-uploader.tsx - Handles image upload and cropping]:::component
+
+    imageUploader --> dialog[dialog.tsx - Modal dialog component]:::component
+
+    imagePreview --> logo[logo.tsx - Logo component]:::component
+    imagePreview --> skeleton[skeleton.tsx - Loading placeholder component]:::component
+
+    fonts --> Circular[Circular Fonts - Font family for body text]:::font
+    fonts --> PPEditorialNew[PP Editorial New Fonts - Font family for display text]:::font
+
+    socialCard --> backgrounds[backgrounds.ts - Background image utilities]:::utility
+    socialCard --> logos[logos.ts - Logo image utilities]:::utility
+    socialCard --> constants[constants.ts - Application-wide constants]:::utility
+    socialCard --> htmlToImage[html-to-image - Converts HTML elements to images]:::utility
+    socialCard --> framerMotion[framer-motion - Animation library]:::utility
+    socialCard --> nextImage[next/image - Optimized image component from Next.js]:::utility
+```

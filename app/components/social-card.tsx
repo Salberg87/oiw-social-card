@@ -288,6 +288,7 @@ export function SocialCard() {
         <>
             <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
                 {/* Form Section */}
+
                 <div className="w-full lg:w-[530px] flex-shrink-0 relative z-20">
                     <UserForm
                         formData={formData}

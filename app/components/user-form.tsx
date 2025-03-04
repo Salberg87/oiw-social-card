@@ -125,7 +125,8 @@ export function UserForm({
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    onChange({ ...formData, topics: [''] });
+    console.log("Suggestion clicked:", suggestion);
+    onChange({ ...formData, topics: [suggestion] });
     setShowSuggestions(false);
     setSelectedIndex(-1);
     inputRef.current?.blur();
@@ -137,27 +138,21 @@ export function UserForm({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev =>
-          prev < filteredSuggestions.length - 1 ? prev + 1 : prev
-        );
+        setSelectedIndex(prev => (prev + 1) % filteredSuggestions.length);
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+        setSelectedIndex((prev) => (prev <= 0 ? filteredSuggestions.length - 1 : prev - 1));
         break;
       case 'Enter':
         e.preventDefault();
         if (selectedIndex >= 0) {
-          onChange({ ...formData, topics: [''] });
-          setShowSuggestions(false);
-          setSelectedIndex(-1);
-          inputRef.current?.blur();
+          handleSuggestionClick(filteredSuggestions[selectedIndex]);
         }
         break;
       case 'Escape':
         setShowSuggestions(false);
         setSelectedIndex(-1);
-        inputRef.current?.blur();
         break;
     }
   };
@@ -190,7 +185,8 @@ export function UserForm({
             value={formData.topics[0] || ''}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            onFocus={() => {
+            onFocus={(e) => {
+              e.target.placeholder = '';
               if (formData.topics[0]) {
                 const filtered = SUGGESTIONS.filter(suggestion =>
                   suggestion.toLowerCase().includes(formData.topics[0].toLowerCase())
@@ -199,7 +195,10 @@ export function UserForm({
                 setShowSuggestions(filtered.length > 0);
               }
             }}
-            className="bg-white border-[#000037]/20 text-[#000037] placeholder:text-[#000037]/50 text-sm sm:text-base h-10 sm:h-12 w-full sm:w-[400px]"
+            onBlur={(e) => {
+              e.target.placeholder = PLACEHOLDERS.topic;
+            }}
+            className="bg-white border-[#000037]/20 text-[#000037] placeholder:text-[#000037]/50 text-sm sm:text-base h-10 sm:h-12 w-full sm:w-[400px] focus:border-[#0071e1] focus:ring-2 focus:ring-[#0071e1] transition-colors"
             aria-label="Topic"
             aria-expanded={showSuggestions}
             role="combobox"
@@ -215,12 +214,8 @@ export function UserForm({
             >
               {filteredSuggestions.map((suggestion, index) => (
                 <button
-                  key={index}
-                  id={`suggestion-${index}`}
-                  role="option"
-                  aria-selected={selectedIndex === index}
+                  key={suggestion}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  onMouseEnter={() => setSelectedIndex(index)}
                   className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedIndex === index
                     ? 'bg-[#000037]/5 text-[#000037]'
                     : 'text-[#000037] hover:bg-[#000037]/5'

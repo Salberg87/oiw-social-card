@@ -1,0 +1,62 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="1200" fill="white" />
+
+  <!-- Grid lines -->
+  <g stroke="lightgray">
+    <!-- Vertical lines -->
+    <line x1="100" y1="0" x2="100" y2="1200"/>
+    <line x1="200" y1="0" x2="200" y2="1200"/>
+    <line x1="300" y1="0" x2="300" y2="1200"/>
+    <line x1="400" y1="0" x2="400" y2="1200"/>
+    <line x1="500" y1="0" x2="500" y2="1200"/>
+    <line x1="600" y1="0" x2="600" y2="1200"/>
+    <line x1="700" y1="0" x2="700" y2="1200"/>
+    <line x1="800" y1="0" x2="800" y2="1200"/>
+    <line x1="900" y1="0" x2="900" y2="1200"/>
+    <line x1="1000" y1="0" x2="1000" y2="1200"/>
+    <line x1="1100" y1="0" x2="1100" y2="1200"/>
+
+    <!-- Horizontal lines -->
+    <line x1="0" y1="100" x2="1200" y2="100"/>
+    <line x1="0" y1="200" x2="1200" y2="200"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="400" x2="1200" y2="400"/>
+    <line x1="0" y1="500" x2="1200" y2="500"/>
+    <line x1="0" y1="600" x2="1200" y2="600"/>
+    <line x1="0" y1="700" x2="1200" y2="700"/>
+    <line x1="0" y1="800" x2="1200" y2="800"/>
+    <line x1="0" y1="900" x2="1200" y2="900"/>
+    <line x1="0" y1="1000" x2="1200" y2="1000"/>
+    <line x1="0" y1="1100" x2="1200" y2="1100"/>
+  </g>
+
+  <!-- Coordinate labels -->
+  <g font-size="20" font-family="Arial">
+    <!-- X-axis labels -->
+    <text x="90" y="20" fill="black">100</text>
+    <text x="190" y="20" fill="black">200</text>
+    <text x="290" y="20" fill="black">300</text>
+    <text x="390" y="20" fill="black">400</text>
+    <text x="490" y="20" fill="black">500</text>
+    <text x="590" y="20" fill="black">600</text>
+    <text x="690" y="20" fill="black">700</text>
+    <text x="790" y="20" fill="black">800</text>
+    <text x="890" y="20" fill="black">900</text>
+    <text x="990" y="20" fill="black">1000</text>
+    <text x="1090" y="20" fill="black">1100</text>
+
+    <!-- Y-axis labels -->
+    <text x="5" y="110" fill="black">100</text>
+    <text x="5" y="210" fill="black">200</text>
+    <text x="5" y="310" fill="black">300</text>
+    <text x="5" y="410" fill="black">400</text>
+    <text x="5" y="510" fill="black">500</text>
+    <text x="5" y="610" fill="black">600</text>
+    <text x="5" y="710" fill="black">700</text>
+    <text x="5" y="810" fill="black">800</text>
+    <text x="5" y="910" fill="black">900</text>
+    <text x="5" y="1010" fill="black">1000</text>
+    <text x="5" y="1110" fill="black">1100</text>
+  </g>
+</svg>

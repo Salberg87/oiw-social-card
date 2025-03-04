@@ -3,10 +3,10 @@
 ## User Interface Improvements
 
 ### Form Interactions
-- [ ] Fix placeholder text behavior
-  - Remove placeholder text on focus
-  - Implement proper form field states (focus, max lenght,filled, error)
-  - Add visual feedback for active fields
+- [] Fix placeholder text behavior
+  - [] Add placeholder text on user click
+  - [] Implement proper form field states (focus, max length, filled, error)
+  - [] Add visual feedback for active fields
 
 ### Image Preview
 - [ ] Lock preview image to 1:1 aspect ratio
