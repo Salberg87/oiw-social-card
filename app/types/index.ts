@@ -9,8 +9,8 @@ export interface ImageGeneratorState {
     /** URL of the cropped profile image ready for display */
     croppedProfileImage: string | null;
 
-    /** Array of discussion topics the user is interested in */
-    topics: string[];
+    /** The discussion topic the user is interested in */
+    topic: string;
 
     /** URL of the current background image from Supabase storage or local fallback */
     backgroundImage: string;

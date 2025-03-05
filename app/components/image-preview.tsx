@@ -99,14 +99,13 @@ export function ImagePreview({
 
                     <div className="flex flex-col items-center gap-5">
                         <div className="flex gap-2 flex-wrap justify-center">
-                            {formData.topics && formData.topics.map((topic, index) => (
+                            {formData.topic && (
                                 <span
-                                    key={`topic-${index}`}
-                                    className="bg-[#F5F5DC] px-5 py-2 rounded-full text-[#000037] font-medium text-[36px]"
+                                    className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
                                 >
-                                    {topic}
+                                    {formData.topic}
                                 </span>
-                            ))}
+                            )}
                         </div>
                     </div>
                 </div>

@@ -405,6 +405,23 @@ export function SocialCard() {
                                         <div className="flex flex-wrap gap-4 justify-center">
                                             {formData.topic && (
                                                 <span
+                                                    className="bg-[#F5F5DC] px-5 py-2 rounded-full text-[#000037] font-medium text-[36px]"
+                                                >
+                                                    {formData.topic}
+                                                </span>
+                                            )}
+                                            {formData.topic && (
+                                                <span
+                                                    className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
+                                                >
+                                                    {formData.topic}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-4 justify-center">
+                                            {formData.topic && (
+                                                <span
                                                     className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
                                                 >
                                                     {formData.topic}
@@ -492,6 +509,23 @@ export function SocialCard() {
                                 <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
                                     Talk to me about:
                                 </p>
+                                <div className="flex flex-wrap gap-4 justify-center">
+                                    {formData.topic && (
+                                        <span
+                                            className="bg-[#F5F5DC] px-5 py-2 rounded-full text-[#000037] font-medium text-[36px]"
+                                        >
+                                            {formData.topic}
+                                        </span>
+                                    )}
+                                    {formData.topic && (
+                                        <span
+                                            className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
+                                        >
+                                            {formData.topic}
+                                        </span>
+                                    )}
+                                </div>
+
                                 <div className="flex flex-wrap gap-4 justify-center">
                                     {formData.topic && (
                                         <span

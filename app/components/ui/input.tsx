@@ -17,11 +17,24 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#eca1fd]/70 focus-visible:border-transparent",
           "hover:border-[#2b005c] hover:bg-white/95",
           "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100/50",
+          "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+          "[&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:hidden",
+          "[&::-webkit-list-button]:appearance-none",
           className,
         )}
         ref={ref}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
+        data-lpignore="true"
+        data-form-type="other"
+        style={{
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+          appearance: 'none'
+        }}
         {...props}
-        data-oid="btf7:zb"
       />
     );
   },
