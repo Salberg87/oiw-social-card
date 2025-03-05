@@ -1,0 +1,160 @@
+# Fix Mode - Strict Bug Fixing Guidelines
+
+## Core Principles
+
+1. **Safety First**
+   - NO code changes without thorough analysis
+   - Must verify all dependencies before modifications
+   - Always preserve existing functionality
+
+2. **Verification Requirements**
+   - Must read and understand all related component code
+   - Must verify all component dependencies
+   - Must check all import/export relationships
+   - Must understand the full component lifecycle
+
+3. **Pre-Fix Checklist**
+   - [ ] Identify the exact bug location
+   - [ ] Document current behavior
+   - [ ] Document expected behavior
+   - [ ] Verify bug reproduction steps
+   - [ ] Check for related components
+   - [ ] Review recent changes in the file
+   - [ ] Check for similar issues in the codebase
+
+4. **Code Modification Rules**
+   - Only modify code with 100% certainty of the fix
+   - No refactoring during bug fixes
+   - No feature additions during bug fixes
+   - No style changes unless directly related to the bug
+   - Keep changes minimal and focused
+
+5. **Testing Requirements**
+   - Must test the specific fix
+   - Must verify no regression in related features
+   - Must test edge cases
+   - Must verify in all supported browsers
+   - Must check mobile responsiveness if UI-related
+
+6. **Documentation Requirements**
+   - Document the exact changes made
+   - Explain why the change fixes the bug
+   - Document any potential side effects
+   - Update related documentation if needed
+
+7. **Review Process**
+   - Self-review checklist before committing
+   - Document testing performed
+   - List all files modified
+   - Provide before/after behavior comparison
+
+8. **Commit Guidelines**
+   - Use prefix: `fix: `
+   - Include bug ID if applicable
+   - Detailed description of the fix
+   - Reference related issues/PRs
+
+## Fix Implementation Process
+
+1. **Analysis Phase**
+   ```
+   - Reproduce the bug consistently
+   - Identify root cause
+   - Document affected components
+   - Create minimal reproduction case
+   ```
+
+2. **Planning Phase**
+   ```
+   - Design minimal fix
+   - Identify potential risks
+   - Plan verification steps
+   - Document proposed changes
+   ```
+
+3. **Implementation Phase**
+   ```
+   - Make minimal required changes
+   - Add/update tests
+   - Verify fix locally
+   - Check for regressions
+   ```
+
+4. **Verification Phase**
+   ```
+   - Run all tests
+   - Verify fix in all environments
+   - Check performance impact
+   - Validate edge cases
+   ```
+
+## Prohibited Actions
+
+1. **Never**
+   - Change working code unrelated to the bug
+   - Add new features during bug fixing
+   - Modify component interfaces
+   - Change existing APIs
+   - Refactor working code
+   - Update dependencies unless required for the fix
+
+2. **Always**
+   - Create backup of files before modification
+   - Test changes thoroughly
+   - Document all modifications
+   - Verify backwards compatibility
+   - Check for side effects
+
+## Error Handling Requirements
+
+1. **Must Preserve**
+   - Existing error handling
+   - Error messages
+   - Error reporting
+   - Logging mechanisms
+
+2. **Must Verify**
+   - Error boundaries still work
+   - Error states are handled
+   - Recovery mechanisms function
+   - Fallback behavior works
+
+## Performance Considerations
+
+1. **Verify No Degradation**
+   - Component rendering performance
+   - Memory usage
+   - Network requests
+   - Bundle size
+
+2. **Monitor**
+   - Load times
+   - Runtime performance
+   - Resource usage
+   - Browser profiler results
+
+## Security Considerations
+
+1. **Maintain**
+   - Input validation
+   - Data sanitization
+   - Access controls
+   - Security boundaries
+
+2. **Verify**
+   - No new security vulnerabilities
+   - Existing security measures work
+   - No exposure of sensitive data
+
+## Final Checklist
+
+Before submitting fix:
+- [ ] Changes are minimal and focused
+- [ ] All tests pass
+- [ ] No new warnings/errors
+- [ ] Documentation updated
+- [ ] Changes reviewed
+- [ ] Performance verified
+- [ ] Security maintained
+- [ ] Backup created
+- [ ] Commit message follows guidelines 
