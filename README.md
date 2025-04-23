@@ -105,7 +105,7 @@ oiw-social-card/
 │   │   └── ...
 │   ├── utils/              # Utility functions
 │   │   ├── backgrounds.ts  # Background configurations
-│   │   ├── logos.ts        # Logo configurations
+│   │   ├── logos.ts        # Logo configurations 
 │   │   └── storage.ts      # Supabase storage utilities
 │   ├── types/              # TypeScript types
 │   ├── fonts/              # Custom font definitions
