@@ -25,6 +25,11 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
     const [backgroundImageSrc, setBackgroundImageSrc] = useState<string | null>(null);
     const [logoImageSrc, setLogoImageSrc] = useState<string | null>(null);
     const [profileImageSrc, setProfileImageSrc] = useState<string | null>(null);
+    const [preloadStatus, setPreloadStatus] = useState({
+        background: false,
+        logo: false,
+        profile: !formData.croppedProfileImage
+    });
 
     // Load and preprocess images for reliable rendering on mobile
     useEffect(() => {
@@ -75,11 +80,15 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
                     if (dataUrl) {
                         setBackgroundImageSrc(dataUrl);
                         setBackgroundImageLoaded(true);
+                        setPreloadStatus(prev => ({ ...prev, background: true }));
                         logger.log("Background image processed and loaded");
                     }
                 } catch (error) {
                     logger.error("Failed to process background image:", error);
+                    setPreloadStatus(prev => ({ ...prev, background: true })); // Mark as loaded anyway to prevent blocking
                 }
+            } else {
+                setPreloadStatus(prev => ({ ...prev, background: true }));
             }
 
             // Load logo image
@@ -89,11 +98,15 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
                     if (dataUrl) {
                         setLogoImageSrc(dataUrl);
                         setLogoImageLoaded(true);
+                        setPreloadStatus(prev => ({ ...prev, logo: true }));
                         logger.log("Logo image processed and loaded");
                     }
                 } catch (error) {
                     logger.error("Failed to process logo image:", error);
+                    setPreloadStatus(prev => ({ ...prev, logo: true })); // Mark as loaded anyway to prevent blocking
                 }
+            } else {
+                setPreloadStatus(prev => ({ ...prev, logo: true }));
             }
 
             // Load profile image if exists
@@ -104,74 +117,37 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
                     if (formData.croppedProfileImage.startsWith('data:')) {
                         setProfileImageSrc(formData.croppedProfileImage);
                         setProfileImageLoaded(true);
+                        setPreloadStatus(prev => ({ ...prev, profile: true }));
                         logger.log("Profile image loaded directly");
                     } else {
                         const dataUrl = await loadImageAsDataUrl(formData.croppedProfileImage);
                         if (dataUrl) {
                             setProfileImageSrc(dataUrl);
                             setProfileImageLoaded(true);
+                            setPreloadStatus(prev => ({ ...prev, profile: true }));
                             logger.log("Profile image processed and loaded");
                         }
                     }
                 } catch (error) {
                     logger.error("Failed to process profile image:", error);
-                    await new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            updatedStatus.logo = true;
-                            setPreloadStatus(prev => ({ ...prev, logo: true }));
-                            resolve(img);
-                        };
-                        img.onerror = (e) => {
-                            logger.error("Error preloading logo:", e);
-                            reject(e);
-                        };
-                        img.src = formData.logoImage;
-                    });
-                    logger.log("Logo image preloaded successfully");
-                } catch (error) {
-                    logger.error("Failed to preload logo image:", error);
+                    setPreloadStatus(prev => ({ ...prev, profile: true })); // Mark as loaded anyway to prevent blocking
                 }
             } else {
-                updatedStatus.logo = true;
-                setPreloadStatus(prev => ({ ...prev, logo: true }));
-            }
-
-            // Preload profile image
-            if (formData.croppedProfileImage) {
-                try {
-                    await new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            updatedStatus.profile = true;
-                            setPreloadStatus(prev => ({ ...prev, profile: true }));
-                            resolve(img);
-                        };
-                        img.onerror = (e) => {
-                            logger.error("Error preloading profile image:", e);
-                            reject(e);
-                        };
-                        img.src = formData.croppedProfileImage!;
-                    });
-                    logger.log("Profile image preloaded successfully");
-                } catch (error) {
-                    logger.error("Failed to preload profile image:", error);
-                }
-            } else {
-                updatedStatus.profile = true;
                 setPreloadStatus(prev => ({ ...prev, profile: true }));
             }
 
-            // Set overall preloaded state when all images are ready
-            const allPreloaded = updatedStatus.background && updatedStatus.logo && updatedStatus.profile;
-            if (allPreloaded) {
-                logger.log("All images preloaded successfully");
-                setImagesPreloaded(true);
-            }
+            // Check if all images are loaded
+            setTimeout(() => {
+                const allLoaded = preloadStatus.background && preloadStatus.logo && preloadStatus.profile;
+                if (allLoaded) {
+                    logger.log("All images preloaded successfully");
+                    setImagesPreloaded(true);
+                }
+            }, 500);
         };
 
-        preloadImages();
-    }, [formData]);
+        loadImages();
+    }, [formData, preloadStatus]);
 
     const generateImage = async () => {
         if (!ref.current) return null;
