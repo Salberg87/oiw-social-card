@@ -19,46 +19,102 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [retryCount, setRetryCount] = useState(0);
     const [imagesPreloaded, setImagesPreloaded] = useState(false);
-    const [preloadStatus, setPreloadStatus] = useState({
-        background: false,
-        logo: false,
-        profile: formData.croppedProfileImage ? false : true // True if no profile image
-    });
+    const [backgroundImageLoaded, setBackgroundImageLoaded] = useState(false);
+    const [logoImageLoaded, setLogoImageLoaded] = useState(false);
+    const [profileImageLoaded, setProfileImageLoaded] = useState(!formData.croppedProfileImage);
+    const [backgroundImageSrc, setBackgroundImageSrc] = useState<string | null>(null);
+    const [logoImageSrc, setLogoImageSrc] = useState<string | null>(null);
+    const [profileImageSrc, setProfileImageSrc] = useState<string | null>(null);
 
-    // Pre-load all images before generating the card
+    // Load and preprocess images for reliable rendering on mobile
     useEffect(() => {
-        const preloadImages = async () => {
+        const loadImages = async () => {
             setImagesPreloaded(false);
-            const updatedStatus = { ...preloadStatus };
 
-            // Preload background image
-            if (formData.backgroundImage) {
+            // Helper function to load an image and convert to data URL
+            const loadImageAsDataUrl = async (src: string): Promise<string | null> => {
                 try {
-                    await new Promise((resolve, reject) => {
+                    return new Promise((resolve, reject) => {
                         const img = new Image();
+                        img.crossOrigin = "anonymous"; // Important for CORS
                         img.onload = () => {
-                            updatedStatus.background = true;
-                            setPreloadStatus(prev => ({ ...prev, background: true }));
-                            resolve(img);
+                            try {
+                                // Create canvas and convert to data URL
+                                const canvas = document.createElement('canvas');
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                                const ctx = canvas.getContext('2d');
+                                if (!ctx) {
+                                    reject(new Error("Failed to get canvas context"));
+                                    return;
+                                }
+                                ctx.drawImage(img, 0, 0);
+                                const dataUrl = canvas.toDataURL('image/png');
+                                resolve(dataUrl);
+                            } catch (err) {
+                                logger.error("Error converting image to data URL:", err);
+                                reject(err);
+                            }
                         };
                         img.onerror = (e) => {
-                            logger.error("Error preloading background:", e);
+                            logger.error("Error loading image:", e);
                             reject(e);
                         };
-                        img.src = formData.backgroundImage;
+                        img.src = src;
                     });
-                    logger.log("Background image preloaded successfully");
                 } catch (error) {
-                    logger.error("Failed to preload background image:", error);
+                    logger.error("Failed to load image as data URL:", error);
+                    return null;
                 }
-            } else {
-                updatedStatus.background = true;
-                setPreloadStatus(prev => ({ ...prev, background: true }));
+            };
+
+            // Load background image
+            if (formData.backgroundImage) {
+                try {
+                    const dataUrl = await loadImageAsDataUrl(formData.backgroundImage);
+                    if (dataUrl) {
+                        setBackgroundImageSrc(dataUrl);
+                        setBackgroundImageLoaded(true);
+                        logger.log("Background image processed and loaded");
+                    }
+                } catch (error) {
+                    logger.error("Failed to process background image:", error);
+                }
             }
 
-            // Preload logo image
+            // Load logo image
             if (formData.logoImage) {
                 try {
+                    const dataUrl = await loadImageAsDataUrl(formData.logoImage);
+                    if (dataUrl) {
+                        setLogoImageSrc(dataUrl);
+                        setLogoImageLoaded(true);
+                        logger.log("Logo image processed and loaded");
+                    }
+                } catch (error) {
+                    logger.error("Failed to process logo image:", error);
+                }
+            }
+
+            // Load profile image if exists
+            if (formData.croppedProfileImage) {
+                try {
+                    // For user-uploaded images, we can use them directly
+                    // as they're already data URLs in most cases
+                    if (formData.croppedProfileImage.startsWith('data:')) {
+                        setProfileImageSrc(formData.croppedProfileImage);
+                        setProfileImageLoaded(true);
+                        logger.log("Profile image loaded directly");
+                    } else {
+                        const dataUrl = await loadImageAsDataUrl(formData.croppedProfileImage);
+                        if (dataUrl) {
+                            setProfileImageSrc(dataUrl);
+                            setProfileImageLoaded(true);
+                            logger.log("Profile image processed and loaded");
+                        }
+                    }
+                } catch (error) {
+                    logger.error("Failed to process profile image:", error);
                     await new Promise((resolve, reject) => {
                         const img = new Image();
                         img.onload = () => {
