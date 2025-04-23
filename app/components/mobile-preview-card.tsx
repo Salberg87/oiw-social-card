@@ -186,7 +186,7 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
             // Draw topic pill
             ctx.fillStyle = '#1E0B2E';
             ctx.beginPath();
-            const topicText = formData.topics[0] || 'My interests';
+            const topicText = formData.topic || 'My interests';
             const textWidth = ctx.measureText(topicText).width;
             const pillWidth = textWidth + 80;
             ctx.roundRect(600 - pillWidth / 2, 800, pillWidth, 80, 40);
@@ -316,14 +316,13 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
                         Talk to me about:
                     </p>
                     <div className="flex flex-wrap gap-4 justify-center">
-                        {formData.topics.map((topic: string, index: number) => (
+                        {formData.topic && (
                             <span
-                                key={index}
                                 className="px-8 py-4 backdrop-blur-sm rounded-full text-[#F5F5DC] text-[40px] bg-[#1E0B2E]"
                             >
-                                {topic}
+                                {formData.topic}
                             </span>
-                        ))}
+                        )}
                     </div>
                 </div>
             </div>
