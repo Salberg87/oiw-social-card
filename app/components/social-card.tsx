@@ -25,6 +25,7 @@ import { ImagePreview } from "./image-preview";
 import { Skeleton } from "./ui/skeleton";
 import { logger } from "../utils/logger";
 import { isMobile } from "../utils/device-detection";
+import { MobilePreviewCard } from "./mobile-preview-card";
 
 const defaultState: ImageGeneratorState = {
     profileImage: null,
@@ -386,101 +387,106 @@ export function SocialCard() {
 
                 {/* Preview Card Section */}
                 <div className={previewClasses} ref={previewContainerRef}>
-                    {/* Visible Preview */}
-                    <div className="relative w-full h-full overflow-hidden rounded-xl">
-                        <div
-                            className="absolute top-1/2 left-1/2 w-[1200px] h-[1200px]"
-                            style={{
-                                transform: `translate(-50%, -50%) scale(${scale})`,
-                                transformOrigin: 'center center'
-                            }}
-                        >
-                            <div className="w-full h-full relative">
-                                {!bgImageLoaded && (
-                                    <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
-                                )}
-                                <Image
-                                    src={formData.backgroundImage}
-                                    alt="Background"
-                                    fill
-                                    sizes="100vw"
-                                    className={`object-cover transition-opacity duration-300 ${bgImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                                    priority={true}
-                                    quality={isMobileView ? 75 : 90} // Lower quality for mobile
-                                    crossOrigin="anonymous"
-                                    onLoad={() => {
-                                        setBgImageLoaded(true);
-                                        setIsLoading(false);
-                                    }}
-                                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                        setIsLoading(false);
-                                        setBgImageLoaded(true); // Show fallback content
-                                        setError("Failed to load background image");
-                                    }}
-                                />
-                                <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
-                                    <div className="flex justify-between items-start mb-auto">
-                                        <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
-                                            I&apos;m{" "}
-                                            <span className="italic">attending</span>
-                                        </h1>
-                                        <div className="w-[350px]">
-                                            <Image
-                                                src={formData.logoImage}
-                                                alt="Oslo Innovation Week 2025"
-                                                width={350}
-                                                height={115}
-                                                className="w-full h-auto"
-                                                priority={true}
-                                                unoptimized={true}
-                                                crossOrigin="anonymous"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-center mb-20">
-                                        {formData.croppedProfileImage ? (
-                                            <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC] relative">
-                                                {!profileImageLoaded && (
-                                                    <Skeleton className="absolute inset-0 w-full h-full rounded-full" />
-                                                )}
+                    {/* Mobile Preview Card */}
+                    {isMounted && isMobileView ? (
+                        <MobilePreviewCard formData={formData} />
+                    ) : (
+                        /* Desktop Preview */
+                        <div className="relative w-full h-full overflow-hidden rounded-xl">
+                            <div
+                                className="absolute top-1/2 left-1/2 w-[1200px] h-[1200px]"
+                                style={{
+                                    transform: `translate(-50%, -50%) scale(${scale})`,
+                                    transformOrigin: 'center center'
+                                }}
+                            >
+                                <div className="w-full h-full relative">
+                                    {!bgImageLoaded && (
+                                        <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
+                                    )}
+                                    <Image
+                                        src={formData.backgroundImage}
+                                        alt="Background"
+                                        fill
+                                        sizes="100vw"
+                                        className={`object-cover transition-opacity duration-300 ${bgImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                        priority={true}
+                                        quality={isMobileView ? 75 : 90} // Lower quality for mobile
+                                        crossOrigin="anonymous"
+                                        onLoad={() => {
+                                            setBgImageLoaded(true);
+                                            setIsLoading(false);
+                                        }}
+                                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                            setIsLoading(false);
+                                            setBgImageLoaded(true); // Show fallback content
+                                            setError("Failed to load background image");
+                                        }}
+                                    />
+                                    <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
+                                        <div className="flex justify-between items-start mb-auto">
+                                            <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
+                                                I&apos;m{" "}
+                                                <span className="italic">attending</span>
+                                            </h1>
+                                            <div className="w-[350px]">
                                                 <Image
-                                                    src={formData.croppedProfileImage}
-                                                    alt="Profile"
-                                                    width={450}
-                                                    height={450}
-                                                    className={`w-full h-full object-cover transition-opacity duration-300 ${profileImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                                    src={formData.logoImage}
+                                                    alt="Oslo Innovation Week 2025"
+                                                    width={350}
+                                                    height={115}
+                                                    className="w-full h-auto"
+                                                    priority={true}
+                                                    unoptimized={true}
                                                     crossOrigin="anonymous"
-                                                    onLoad={() => setProfileImageLoaded(true)}
-                                                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                                        setProfileImageLoaded(true); // Show fallback content
-                                                        setError("Failed to load profile image");
-                                                    }}
                                                 />
                                             </div>
-                                        ) : (
-                                            <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
-                                        )}
-                                    </div>
+                                        </div>
 
-                                    <div className="text-center">
-                                        <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
-                                            Talk to me about:
-                                        </p>
-                                        <div className="flex flex-wrap gap-4 justify-center">
-                                            {formData.topic && (
-                                                <span
-                                                    className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
-                                                >
-                                                    {formData.topic}
-                                                </span>
+                                        <div className="flex justify-center mb-20">
+                                            {formData.croppedProfileImage ? (
+                                                <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC] relative">
+                                                    {!profileImageLoaded && (
+                                                        <Skeleton className="absolute inset-0 w-full h-full rounded-full" />
+                                                    )}
+                                                    <Image
+                                                        src={formData.croppedProfileImage}
+                                                        alt="Profile"
+                                                        width={450}
+                                                        height={450}
+                                                        className={`w-full h-full object-cover transition-opacity duration-300 ${profileImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                                        crossOrigin="anonymous"
+                                                        onLoad={() => setProfileImageLoaded(true)}
+                                                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                                            setProfileImageLoaded(true); // Show fallback content
+                                                            setError("Failed to load profile image");
+                                                        }}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
                                             )}
+                                        </div>
+
+                                        <div className="text-center">
+                                            <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
+                                                Talk to me about:
+                                            </p>
+                                            <div className="flex flex-wrap gap-4 justify-center">
+                                                {formData.topic && (
+                                                    <span
+                                                        className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
+                                                    >
+                                                        {formData.topic}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {isCapturing && (
                         <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-xl">
@@ -499,76 +505,80 @@ export function SocialCard() {
                     ref={previewRef}
                     className="w-[1200px] h-[1200px] bg-[#000037] pointer-events-none select-none"
                 >
-                    <div className="w-full h-full relative">
-                        <Image
-                            src={formData.backgroundImage}
-                            alt="Background"
-                            fill
-                            sizes="100vw"
-                            className="object-cover"
-                            priority={true}
-                            quality={isMobileView ? 75 : 90}
-                            crossOrigin="anonymous"
-                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                setError("Failed to load background image");
-                            }}
-                        />
-                        <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
-                            <div className="flex justify-between items-start mb-auto">
-                                <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
-                                    I&apos;m{" "}
-                                    <span className="italic">attending</span>
-                                </h1>
-                                <div className="w-[350px]">
-                                    <Image
-                                        src={formData.logoImage}
-                                        alt="Oslo Innovation Week 2025"
-                                        width={350}
-                                        height={115}
-                                        className="w-full h-auto"
-                                        priority={true}
-                                        unoptimized={true}
-                                        crossOrigin="anonymous"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-center mb-20">
-                                {formData.croppedProfileImage ? (
-                                    <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
+                    {isMobileView ? (
+                        <MobilePreviewCard formData={formData} />
+                    ) : (
+                        <div className="w-full h-full relative">
+                            <Image
+                                src={formData.backgroundImage}
+                                alt="Background"
+                                fill
+                                sizes="100vw"
+                                className="object-cover"
+                                priority={true}
+                                quality={isMobileView ? 75 : 90}
+                                crossOrigin="anonymous"
+                                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                    setError("Failed to load background image");
+                                }}
+                            />
+                            <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
+                                <div className="flex justify-between items-start mb-auto">
+                                    <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
+                                        I&apos;m{" "}
+                                        <span className="italic">attending</span>
+                                    </h1>
+                                    <div className="w-[350px]">
                                         <Image
-                                            src={formData.croppedProfileImage}
-                                            alt="Profile"
-                                            width={450}
-                                            height={450}
-                                            className="w-full h-full object-cover"
+                                            src={formData.logoImage}
+                                            alt="Oslo Innovation Week 2025"
+                                            width={350}
+                                            height={115}
+                                            className="w-full h-auto"
+                                            priority={true}
+                                            unoptimized={true}
                                             crossOrigin="anonymous"
-                                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                                setError("Failed to load profile image");
-                                            }}
                                         />
                                     </div>
-                                ) : (
-                                    <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
-                                )}
-                            </div>
+                                </div>
 
-                            <div className="text-center">
-                                <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
-                                    Talk to me about:
-                                </p>
-                                <div className="flex flex-wrap gap-4 justify-center">
-                                    {formData.topic && (
-                                        <span
-                                            className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
-                                        >
-                                            {formData.topic}
-                                        </span>
+                                <div className="flex justify-center mb-20">
+                                    {formData.croppedProfileImage ? (
+                                        <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
+                                            <Image
+                                                src={formData.croppedProfileImage}
+                                                alt="Profile"
+                                                width={450}
+                                                height={450}
+                                                className="w-full h-full object-cover"
+                                                crossOrigin="anonymous"
+                                                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                                    setError("Failed to load profile image");
+                                                }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
                                     )}
+                                </div>
+
+                                <div className="text-center">
+                                    <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
+                                        Talk to me about:
+                                    </p>
+                                    <div className="flex flex-wrap gap-4 justify-center">
+                                        {formData.topic && (
+                                            <span
+                                                className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
+                                            >
+                                                {formData.topic}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>,
                 renderContainer
             )}
