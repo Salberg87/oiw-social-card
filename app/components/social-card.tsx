@@ -23,6 +23,7 @@ import {
 import { fetchLogos, getLogo, LOGOS } from "../utils/logos";
 import { ImagePreview } from "./image-preview";
 import { Skeleton } from "./ui/skeleton";
+import { isMobileDevice } from "../utils/device";
 
 const defaultState: ImageGeneratorState = {
     profileImage: null,
@@ -59,11 +60,14 @@ export function SocialCard() {
     const [isEditing, setIsEditing] = useState(false);
     const [bgImageLoaded, setBgImageLoaded] = useState(false);
     const [profileImageLoaded, setProfileImageLoaded] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         setRenderContainer(document.getElementById('render-container'));
         // Preload key backgrounds for better performance
         preloadBackgrounds();
+        // Check if user is on mobile
+        setIsMobile(isMobileDevice());
     }, []);
 
     // Asset loading
@@ -301,11 +305,15 @@ export function SocialCard() {
     }
 
     return (
-        <>
+        <div className="w-full">
+            {isMobile && (
+                <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mb-3 text-sm text-amber-700">
+                    Please take a screenshot of the preview image or use a desktop device for the best experience.
+                </div>
+            )}
             <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
                 {/* Form Section */}
-
-                <div className="w-full lg:w-[530px] flex-shrink-0 relative z-20">
+                <div className="w-full lg:w-[380px] flex-shrink-0">
                     <UserForm
                         formData={formData}
                         onChange={handleFormChange}
@@ -507,6 +515,6 @@ export function SocialCard() {
                 </div>,
                 renderContainer
             )}
-        </>
+        </div>
     );
 } 
