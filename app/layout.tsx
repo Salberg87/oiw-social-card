@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { displayFont, bodyFont } from "./fonts";
 import "./globals.css";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Oslo Innovation Week Social Card Generator",
@@ -30,6 +31,13 @@ export default function RootLayout({
       <body data-oid="y.zev82">
         {children}
         <SpeedInsights />
+        <Analytics />
+        <Script
+          defer
+          data-domain="social.oiw.no"
+          src="https://plausible.io/js/script.file-downloads.js"
+          strategy="afterInteractive"
+        />
 
         {/* This is a placeholder script - replace with actual analytics in production */}
         {/* 
