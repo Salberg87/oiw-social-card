@@ -16,6 +16,7 @@ interface MobilePreviewCardProps {
 
 export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
     const ref = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [retryCount, setRetryCount] = useState(0);
     const [imagesPreloaded, setImagesPreloaded] = useState(false);
@@ -30,6 +31,26 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
         logo: false,
         profile: !formData.croppedProfileImage
     });
+    const [scale, setScale] = useState(1);
+
+    // Keep the preview responsively scaled to fit its container (mobile)
+    useEffect(() => {
+        const updateScale = () => {
+            if (!wrapperRef.current) return;
+            const { clientWidth, clientHeight } = wrapperRef.current;
+            const horizontalScale = clientWidth / 1200;
+            const verticalScale = clientHeight / 1200;
+            const newScale = Math.min(horizontalScale, verticalScale);
+            setScale(Number.isFinite(newScale) && newScale > 0 ? newScale : 1);
+        };
+
+        updateScale();
+        const ro = new ResizeObserver(updateScale);
+        if (wrapperRef.current) ro.observe(wrapperRef.current);
+        return () => {
+            try { if (wrapperRef.current) ro.unobserve(wrapperRef.current); } catch {}
+        };
+    }, []);
 
     // Load and preprocess images for reliable rendering on mobile
     useEffect(() => {
@@ -277,16 +298,19 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
     }, [retryCount]); // Include retryCount in dependencies to update the handler
 
     return (
-        <div
-            ref={ref}
-            className="relative w-[1200px] h-[1200px]"
-            style={{
-                backgroundColor: "#1E0B2E", // Fallback background color
-                backgroundImage: formData.backgroundImage ? `url(${formData.backgroundImage})` : "none",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-            }}
-        >
+        <div ref={wrapperRef} className="relative w-full aspect-square overflow-hidden">
+            <div
+                ref={ref}
+                className="absolute top-1/2 left-1/2 w-[1200px] h-[1200px]"
+                style={{
+                    transform: `translate(-50%, -50%) scale(${isGenerating ? 1 : scale})`,
+                    transformOrigin: "center center",
+                    backgroundColor: "#1E0B2E",
+                    backgroundImage: formData.backgroundImage ? `url(${formData.backgroundImage})` : "none",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                }}
+            >
             {/* Display loading indicator if images aren't preloaded */}
             {!imagesPreloaded && (
                 <div className="absolute inset-0 bg-[#1E0B2E] flex items-center justify-center z-20">
@@ -357,6 +381,7 @@ export function MobilePreviewCard({ formData }: MobilePreviewCardProps) {
                         )}
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     );
