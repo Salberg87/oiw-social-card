@@ -22,8 +22,8 @@ export function Background({
     // Pad the index with leading zero if needed
     const paddedIndex = index.toString().padStart(2, '0');
     const fileName = `OIW_GraphicAssets_16x9_02.${paddedIndex}.png`;
-    const backgroundUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/${fileName}`;
-    const fallbackUrl = `/GraphicAssets/backgrounds/${fileName}`;
+    const backgroundUrl = `/assets/backgrounds/${fileName}`;
+    const fallbackUrl = `/assets/backgrounds/OIW_GraphicAssets_16x9_02.01.png`;
 
     const handleLoad = () => {
         setIsLoading(false);

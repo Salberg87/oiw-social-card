@@ -23,14 +23,16 @@ import {
 import { fetchLogos, getLogo, LOGOS } from "../utils/logos";
 import { ImagePreview } from "./image-preview";
 import { Skeleton } from "./ui/skeleton";
-import { isMobileDevice } from "../utils/device";
+import { logger } from "../utils/logger";
+import { isMobile } from "../utils/device-detection";
+import { MobilePreviewCard } from "./mobile-preview-card";
 
 const defaultState: ImageGeneratorState = {
     profileImage: null,
     croppedProfileImage: null,
     topic: "",
-    backgroundImage: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.01.png`,
-    logoImage: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logos/OIW25_Logo_Date_RGB_Cream.png`
+    backgroundImage: "/assets/backgrounds/OIW_GraphicAssets_16x9_02.01.png",
+    logoImage: "/assets/logos/OIW25_Logo_Date_RGB_Cream.png"
 };
 
 // Prefetch key images for improved performance
@@ -60,26 +62,50 @@ export function SocialCard() {
     const [isEditing, setIsEditing] = useState(false);
     const [bgImageLoaded, setBgImageLoaded] = useState(false);
     const [profileImageLoaded, setProfileImageLoaded] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobileView, setIsMobileView] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Set mounted state for hydration safety
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // Mobile detection after mount to prevent hydration mismatch
+    useEffect(() => {
+        if (isMounted) {
+            setIsMobileView(isMobile());
+
+            const handleResize = () => {
+                setIsMobileView(isMobile());
+            };
+
+            window.addEventListener('resize', handleResize);
+            return () => window.removeEventListener('resize', handleResize);
+        }
+    }, [isMounted]);
 
     useEffect(() => {
-        setRenderContainer(document.getElementById('render-container'));
-        // Preload key backgrounds for better performance
-        preloadBackgrounds();
-        // Check if user is on mobile
-        setIsMobile(isMobileDevice());
-    }, []);
+        if (isMounted) {
+            setRenderContainer(document.getElementById('render-container'));
+            // Preload key backgrounds for better performance
+            preloadBackgrounds();
+        }
+    }, [isMounted]);
 
     // Asset loading
     useEffect(() => {
         const loadAssets = async () => {
             try {
                 setIsLoading(true);
+                logger.log("Starting to load assets...");
 
                 const [loadedBackgrounds, loadedLogos] = await Promise.all([
                     fetchBackgrounds().catch(() => []),
                     fetchLogos().catch(() => []),
                 ]);
+
+                logger.log("Loaded backgrounds:", loadedBackgrounds);
+                logger.log("Loaded logos:", loadedLogos);
 
                 // Update the available backgrounds array without changing the current background
                 if (loadedBackgrounds.length > 0) {
@@ -107,14 +133,17 @@ export function SocialCard() {
                     }
                 }
             } catch (err) {
+                logger.error("Error loading assets:", err);
                 // Don't set error state to avoid UI disruption
             } finally {
                 // Loading state is managed by image loading callbacks now
             }
         };
 
-        loadAssets();
-    }, []);
+        if (isMounted) {
+            loadAssets();
+        }
+    }, [isMounted]);
 
     useEffect(() => {
         const updateScale = () => {
@@ -135,24 +164,27 @@ export function SocialCard() {
         };
 
         // Initial calculation
-        updateScale();
+        if (isMounted) {
+            updateScale();
 
-        // Update on resize
-        const resizeObserver = new ResizeObserver(updateScale);
-        if (previewContainerRef.current) {
-            resizeObserver.observe(previewContainerRef.current);
-        }
-
-        // Cleanup
-        return () => {
+            // Update on resize
+            const resizeObserver = new ResizeObserver(updateScale);
             if (previewContainerRef.current) {
-                resizeObserver.unobserve(previewContainerRef.current);
+                resizeObserver.observe(previewContainerRef.current);
             }
-        };
-    }, []);
+
+            // Cleanup
+            return () => {
+                if (previewContainerRef.current) {
+                    resizeObserver.unobserve(previewContainerRef.current);
+                }
+            };
+        }
+    }, [isMounted]);
 
     // Form handlers
     const handleFormChange = (newData: ImageGeneratorState) => {
+        logger.log("Form data changed:", newData);
         setFormData(newData);
     };
 
@@ -169,7 +201,7 @@ export function SocialCard() {
 
     const handleChangeBackground = () => {
         if (backgrounds.length === 0) {
-            console.warn("No backgrounds available to change to");
+            logger.warn("No backgrounds available to change to");
             return;
         }
 
@@ -225,41 +257,63 @@ export function SocialCard() {
                     // Wait for images to load
                     await ensureAllImagesLoaded(previewRef.current);
 
-                    // Use JPEG format with quality setting to keep file size under 3MB
-                    const dataUrl = await toJpeg(previewRef.current, {
-                        quality: 0.85, // Lower quality to reduce file size
-                        pixelRatio: 1
-                    });
+                    // Use appropriate image format and quality based on device
+                    const imageFormat = isMobileView ? 'webp' : 'jpeg';
+                    const initialQuality = isMobileView ? 0.75 : 0.85;
+
+                    // Generate image with optimized settings for the device
+                    let dataUrl;
+                    if (imageFormat === 'webp') {
+                        dataUrl = await toPng(previewRef.current, {
+                            quality: initialQuality,
+                            pixelRatio: isMobileView ? 1.5 : 1
+                        });
+                    } else {
+                        dataUrl = await toJpeg(previewRef.current, {
+                            quality: initialQuality,
+                            pixelRatio: 1
+                        });
+                    }
 
                     // Create a function to check file size and adjust quality if needed
-                    const checkFileSize = async (url: string, quality: number): Promise<string> => {
+                    const checkFileSize = async (url: string, quality: number, format: 'webp' | 'jpeg'): Promise<string> => {
                         // Convert data URL to blob to check size
                         const response = await fetch(url);
                         const blob = await response.blob();
                         const fileSizeInMB = blob.size / (1024 * 1024);
 
-                        console.log(`Generated image size: ${fileSizeInMB.toFixed(2)}MB`);
+                        logger.log(`Generated image size: ${fileSizeInMB.toFixed(2)}MB`);
 
                         // If file is too large and quality can still be reduced
                         if (fileSizeInMB > 3 && quality > 0.5) {
                             // Reduce quality and try again
                             const newQuality = quality - 0.1;
-                            console.log(`Reducing quality to ${newQuality.toFixed(2)}`);
-                            const newDataUrl = await toJpeg(previewRef.current!, {
-                                quality: newQuality,
-                                pixelRatio: 1
-                            });
-                            return checkFileSize(newDataUrl, newQuality);
+                            logger.log(`Reducing quality to ${newQuality.toFixed(2)}`);
+
+                            let newDataUrl;
+                            if (format === 'webp') {
+                                newDataUrl = await toPng(previewRef.current!, {
+                                    quality: newQuality,
+                                    pixelRatio: isMobileView ? 1.5 : 1
+                                });
+                            } else {
+                                newDataUrl = await toJpeg(previewRef.current!, {
+                                    quality: newQuality,
+                                    pixelRatio: 1
+                                });
+                            }
+
+                            return checkFileSize(newDataUrl, newQuality, format);
                         }
 
                         return url;
                     };
 
                     // Check and adjust file size if needed
-                    const optimizedDataUrl = await checkFileSize(dataUrl, 0.85);
+                    const optimizedDataUrl = await checkFileSize(dataUrl, initialQuality, imageFormat as 'webp' | 'jpeg');
 
                     const link = document.createElement('a');
-                    link.download = 'oiw-social-card.jpg';
+                    link.download = `oiw-social-card.${imageFormat === 'webp' ? 'png' : 'jpg'}`;
                     link.href = optimizedDataUrl;
                     link.click();
 
@@ -269,14 +323,14 @@ export function SocialCard() {
                     setIsCapturing(false);
                     setIsDownloading(false);
                 } catch (err) {
-                    console.error("Error generating image");
+                    logger.error("Error generating image", err);
                     setError("Failed to generate image");
                     setIsCapturing(false);
                     setIsDownloading(false);
                 }
             }, 100);
         } catch (err) {
-            console.error("Error in download process");
+            logger.error("Error in download process", err);
             setError("Failed to start download process");
             setIsDownloading(false);
         }
@@ -286,7 +340,7 @@ export function SocialCard() {
         const handleDownloadEvent = () => handleDownload();
         window.addEventListener("download-image", handleDownloadEvent);
         return () => window.removeEventListener("download-image", handleDownloadEvent);
-    }, []);
+    }, [isMounted, isMobileView]); // Include dependencies to update the handler
 
     const previewClasses = "relative w-full aspect-square overflow-hidden rounded-xl";
 
@@ -306,7 +360,7 @@ export function SocialCard() {
 
     return (
         <div className="w-full">
-            {isMobile && (
+            {isMobileView && (
                 <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mb-3 text-sm text-amber-700">
                     Please take a screenshot of the preview image or use a desktop device for the best experience.
                 </div>
@@ -325,105 +379,118 @@ export function SocialCard() {
                     {error && (
                         <p className="text-red-600 text-sm mt-2">{error}</p>
                     )}
+
+                    {/* Mobile device notification */}
+                    {isMounted && isMobileView && (
+                        <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-800 text-sm">
+                            <p className="font-medium">You're using a mobile device</p>
+                            <p>We've optimized image generation for your device. For best results, consider using a desktop browser.</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Preview Card Section */}
                 <div className={previewClasses} ref={previewContainerRef}>
-                    {/* Visible Preview */}
-                    <div className="relative w-full h-full overflow-hidden rounded-xl">
-                        <div
-                            className="absolute top-1/2 left-1/2 w-[1200px] h-[1200px]"
-                            style={{
-                                transform: `translate(-50%, -50%) scale(${scale})`,
-                                transformOrigin: 'center center'
-                            }}
-                        >
-                            <div className="w-full h-full relative">
-                                {!bgImageLoaded && (
-                                    <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
-                                )}
-                                <Image
-                                    src={formData.backgroundImage}
-                                    alt="Background"
-                                    fill
-                                    sizes="100vw"
-                                    className={`object-cover transition-opacity duration-300 ${bgImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                                    priority={true}
-                                    quality={90}
-                                    crossOrigin="anonymous"
-                                    onLoad={() => {
-                                        setBgImageLoaded(true);
-                                        setIsLoading(false);
-                                    }}
-                                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                        setIsLoading(false);
-                                        setBgImageLoaded(true); // Show fallback content
-                                        setError("Failed to load background image");
-                                    }}
-                                />
-                                <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
-                                    <div className="flex justify-between items-start mb-auto">
-                                        <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
-                                            I&apos;m{" "}
-                                            <span className="italic">attending</span>
-                                        </h1>
-                                        <div className="w-[350px]">
-                                            <Image
-                                                src={formData.logoImage}
-                                                alt="Oslo Innovation Week 2025"
-                                                width={350}
-                                                height={115}
-                                                className="w-full h-auto"
-                                                priority={true}
-                                                unoptimized={true}
-                                                crossOrigin="anonymous"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-center mb-20">
-                                        {formData.croppedProfileImage ? (
-                                            <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC] relative">
-                                                {!profileImageLoaded && (
-                                                    <Skeleton className="absolute inset-0 w-full h-full rounded-full" />
-                                                )}
+                    {/* Mobile Preview Card */}
+                    {isMounted && isMobileView ? (
+                        <MobilePreviewCard formData={formData} />
+                    ) : (
+                        /* Desktop Preview */
+                        <div className="relative w-full h-full overflow-hidden rounded-xl">
+                            <div
+                                className="absolute top-1/2 left-1/2 w-[1200px] h-[1200px]"
+                                style={{
+                                    transform: `translate(-50%, -50%) scale(${scale})`,
+                                    transformOrigin: 'center center'
+                                }}
+                            >
+                                <div className="w-full h-full relative">
+                                    {!bgImageLoaded && (
+                                        <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
+                                    )}
+                                    <Image
+                                        src={formData.backgroundImage}
+                                        alt="Background"
+                                        fill
+                                        sizes="100vw"
+                                        className={`object-cover transition-opacity duration-300 ${bgImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                        priority={true}
+                                        quality={isMobileView ? 75 : 90} // Lower quality for mobile
+                                        crossOrigin="anonymous"
+                                        onLoad={() => {
+                                            setBgImageLoaded(true);
+                                            setIsLoading(false);
+                                        }}
+                                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                            setIsLoading(false);
+                                            setBgImageLoaded(true); // Show fallback content
+                                            setError("Failed to load background image");
+                                        }}
+                                    />
+                                    <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
+                                        <div className="flex justify-between items-start mb-auto">
+                                            <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
+                                                I&apos;m{" "}
+                                                <span className="italic">attending</span>
+                                            </h1>
+                                            <div className="w-[350px]">
                                                 <Image
-                                                    src={formData.croppedProfileImage}
-                                                    alt="Profile"
-                                                    width={450}
-                                                    height={450}
-                                                    className={`w-full h-full object-cover transition-opacity duration-300 ${profileImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                                    src={formData.logoImage}
+                                                    alt="Oslo Innovation Week 2025"
+                                                    width={350}
+                                                    height={115}
+                                                    className="w-full h-auto"
+                                                    priority={true}
+                                                    unoptimized={true}
                                                     crossOrigin="anonymous"
-                                                    onLoad={() => setProfileImageLoaded(true)}
-                                                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                                        setProfileImageLoaded(true); // Show fallback content
-                                                        setError("Failed to load profile image");
-                                                    }}
                                                 />
                                             </div>
-                                        ) : (
-                                            <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
-                                        )}
-                                    </div>
+                                        </div>
 
-                                    <div className="text-center">
-                                        <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
-                                            Talk to me about:
-                                        </p>
-                                        <div className="flex flex-wrap gap-4 justify-center">
-                                            {formData.topic && (
-                                                <span
-                                                    className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
-                                                >
-                                                    {formData.topic}
-                                                </span>
+                                        <div className="flex justify-center mb-20">
+                                            {formData.croppedProfileImage ? (
+                                                <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC] relative">
+                                                    {!profileImageLoaded && (
+                                                        <Skeleton className="absolute inset-0 w-full h-full rounded-full" />
+                                                    )}
+                                                    <Image
+                                                        src={formData.croppedProfileImage}
+                                                        alt="Profile"
+                                                        width={450}
+                                                        height={450}
+                                                        className={`w-full h-full object-cover transition-opacity duration-300 ${profileImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                                        crossOrigin="anonymous"
+                                                        onLoad={() => setProfileImageLoaded(true)}
+                                                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                                            setProfileImageLoaded(true); // Show fallback content
+                                                            setError("Failed to load profile image");
+                                                        }}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
                                             )}
+                                        </div>
+
+                                        <div className="text-center">
+                                            <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
+                                                Talk to me about:
+                                            </p>
+                                            <div className="flex flex-wrap gap-4 justify-center">
+                                                {formData.topic && (
+                                                    <span
+                                                        className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
+                                                    >
+                                                        {formData.topic}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {isCapturing && (
                         <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-xl">
@@ -437,81 +504,85 @@ export function SocialCard() {
             </div>
 
             {/* Render Portal */}
-            {renderContainer && createPortal(
+            {renderContainer && isMounted && createPortal(
                 <div
                     ref={previewRef}
                     className="w-[1200px] h-[1200px] bg-[#000037] pointer-events-none select-none"
                 >
-                    <div className="w-full h-full relative">
-                        <Image
-                            src={formData.backgroundImage}
-                            alt="Background"
-                            fill
-                            sizes="100vw"
-                            className="object-cover"
-                            priority={true}
-                            quality={90}
-                            crossOrigin="anonymous"
-                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                setError("Failed to load background image");
-                            }}
-                        />
-                        <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
-                            <div className="flex justify-between items-start mb-auto">
-                                <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
-                                    I&apos;m{" "}
-                                    <span className="italic">attending</span>
-                                </h1>
-                                <div className="w-[350px]">
-                                    <Image
-                                        src={formData.logoImage}
-                                        alt="Oslo Innovation Week 2025"
-                                        width={350}
-                                        height={115}
-                                        className="w-full h-auto"
-                                        priority={true}
-                                        unoptimized={true}
-                                        crossOrigin="anonymous"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-center mb-20">
-                                {formData.croppedProfileImage ? (
-                                    <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
+                    {isMobileView ? (
+                        <MobilePreviewCard formData={formData} />
+                    ) : (
+                        <div className="w-full h-full relative">
+                            <Image
+                                src={formData.backgroundImage}
+                                alt="Background"
+                                fill
+                                sizes="100vw"
+                                className="object-cover"
+                                priority={true}
+                                quality={isMobileView ? 75 : 90}
+                                crossOrigin="anonymous"
+                                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                    setError("Failed to load background image");
+                                }}
+                            />
+                            <div className="relative z-10 w-full h-full p-[80px] flex flex-col">
+                                <div className="flex justify-between items-start mb-auto">
+                                    <h1 className="font-display text-[120px] font-light text-[#F5F5DC] leading-none">
+                                        I&apos;m{" "}
+                                        <span className="italic">attending</span>
+                                    </h1>
+                                    <div className="w-[350px]">
                                         <Image
-                                            src={formData.croppedProfileImage}
-                                            alt="Profile"
-                                            width={450}
-                                            height={450}
-                                            className="w-full h-full object-cover"
+                                            src={formData.logoImage}
+                                            alt="Oslo Innovation Week 2025"
+                                            width={350}
+                                            height={115}
+                                            className="w-full h-auto"
+                                            priority={true}
+                                            unoptimized={true}
                                             crossOrigin="anonymous"
-                                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                                setError("Failed to load profile image");
-                                            }}
                                         />
                                     </div>
-                                ) : (
-                                    <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
-                                )}
-                            </div>
+                                </div>
 
-                            <div className="text-center">
-                                <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
-                                    Talk to me about:
-                                </p>
-                                <div className="flex flex-wrap gap-4 justify-center">
-                                    {formData.topic && (
-                                        <span
-                                            className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
-                                        >
-                                            {formData.topic}
-                                        </span>
+                                <div className="flex justify-center mb-20">
+                                    {formData.croppedProfileImage ? (
+                                        <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
+                                            <Image
+                                                src={formData.croppedProfileImage}
+                                                alt="Profile"
+                                                width={450}
+                                                height={450}
+                                                className="w-full h-full object-cover"
+                                                crossOrigin="anonymous"
+                                                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                                    setError("Failed to load profile image");
+                                                }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-[450px] h-[450px] rounded-full bg-gray-100 border-4 border-white/20" />
                                     )}
+                                </div>
+
+                                <div className="text-center">
+                                    <p className="text-[#F5F5DC] text-[48px] font-light mb-4">
+                                        Talk to me about:
+                                    </p>
+                                    <div className="flex flex-wrap gap-4 justify-center">
+                                        {formData.topic && (
+                                            <span
+                                                className="bg-[#000037] px-5 py-2 rounded-full text-[#F5F5DC] font-medium text-[36px]"
+                                            >
+                                                {formData.topic}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>,
                 renderContainer
             )}

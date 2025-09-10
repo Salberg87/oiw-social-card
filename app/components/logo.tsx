@@ -23,7 +23,7 @@ export function Logo({
         ? 'OIW25_Logo_Date_RGB_Cream.png'
         : 'OIW25_Logo_Date_RGB_BrightRed.png';
 
-    const logoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logos/${fileName}`;
+    const logoUrl = `/assets/logos/${fileName}`;
 
     return (
         <div className={`relative ${className}`}>
