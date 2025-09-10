@@ -12,9 +12,9 @@ export interface ImageGeneratorState {
     /** The discussion topic the user is interested in */
     topic: string;
 
-    /** URL of the current background image from Supabase storage or local fallback */
+    /** URL of the current background image from local assets */
     backgroundImage: string;
 
-    /** URL of the current logo image from Supabase storage or local fallback */
+    /** URL of the current logo image from local assets */
     logoImage: string;
 } 
