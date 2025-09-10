@@ -195,4 +195,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Oslo Innovation Week team for their vision and support
 - Supabase team for their excellent storage solution
 - Next.js team for the amazing framework
-- The open source community for the tools and libraries used in this project
+- The open source community for the tools and libraries used in this project# Trigger new deployment Wed Sep 10 08:36:29 CEST 2025
