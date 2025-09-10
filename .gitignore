@@ -43,13 +43,12 @@ next-env.d.ts
 .cursor/
 
 # Allow specific asset folders
-!public/GraphicAssets/Logo/*.png
-!public/GraphicAssets/backgrounds/*.png
+!public/assets/backgrounds/*.png
+!public/assets/logos/*.png
+!public/assets/logos/*.svg
 
-# Large assets
-/public/GraphicAssets/backgrounds/
+# Large assets - exclude only non-essential images
 *.jpg
-*.png
 
 # Logs
 logs
