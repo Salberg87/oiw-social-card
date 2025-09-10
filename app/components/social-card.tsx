@@ -29,8 +29,8 @@ const defaultState: ImageGeneratorState = {
     profileImage: null,
     croppedProfileImage: null,
     topic: "",
-    backgroundImage: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.01.png`,
-    logoImage: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logos/OIW25_Logo_Date_RGB_Cream.png`
+    backgroundImage: "/assets/backgrounds/OIW_GraphicAssets_16x9_02.01.png",
+    logoImage: "/assets/logos/OIW25_Logo_Date_RGB_Cream.svg"
 };
 
 // Prefetch key images for improved performance

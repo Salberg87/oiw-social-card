@@ -1,9 +1,7 @@
 import { fetchAssets, getAssetBySeed, DEFAULT_ASSETS } from './storage'
 
-// Export the default backgrounds using Supabase URL
-export const BACKGROUNDS = [
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.01.png`
-];
+// Export the default backgrounds using local file paths
+export const BACKGROUNDS = DEFAULT_ASSETS.backgrounds;
 
 // Function to fetch backgrounds
 export async function fetchBackgrounds(): Promise<string[]> {

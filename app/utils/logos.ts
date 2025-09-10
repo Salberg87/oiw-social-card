@@ -5,10 +5,7 @@ export const LOGOS = DEFAULT_ASSETS.logos;
 
 // Function to fetch logos
 export async function fetchLogos(): Promise<string[]> {
-    return fetchAssets('logos', {
-        quality: 90, // Higher quality for logos
-        format: 'png' // Keep PNG format for logos to maintain transparency
-    });
+    return fetchAssets('logos');
 }
 
 // Function to get a logo based on a seed (like user's name)

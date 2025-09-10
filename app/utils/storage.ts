@@ -1,47 +1,61 @@
-import { createClient } from './supabase/client'
-import { FileObject } from '@supabase/storage-js'
-
 /**
- * Cache for storing fetched asset URLs to minimize API calls
- * Organized by bucket name for efficient access
+ * Local asset management - no longer using Supabase storage
+ * All assets are now served from the public directory
  */
-const assetCache: Record<string, string[]> = {
-    backgrounds: [],
-    logos: []
-};
 
 /**
- * Default assets to use as fallback when Supabase storage is unavailable
- * These should match the assets stored in the public directory
+ * Default assets using local file paths
+ * These match the assets stored in the public/assets directory
  */
 export const DEFAULT_ASSETS = {
     backgrounds: [
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.01.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.02.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.03.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.04.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.05.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.06.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.07.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.08.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.09.png`,
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.10.png`,
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.01.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.02.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.03.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.04.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.05.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.06.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.07.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.08.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.09.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_01.10.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.01.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.02.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.03.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.04.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.05.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.06.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.07.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.08.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.09.png",
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.10.png",
     ],
     logos: [
-        "/GraphicAssets/Logo/OIW25_Logo_Date_RGB_Cream.png"
+        "/assets/logos/OIW25_Logo_Date_RGB_BrightRed.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_Cream.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_DarkBlue.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_ForestGreen.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_Purple.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_SharpGreen.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_SkyBlue.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_SoftPink.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_Black.png",
+        "/assets/logos/OIW25_Logo_Date_RGB_White.png",
+        "/assets/logos/OIW25_Logo_RGB_Black.png",
+        "/assets/logos/OIW25_Logo_RGB_White.png",
     ]
 };
 
 /**
- * Direct URLs for assets in Supabase storage
+ * Direct URLs for assets - now using local paths
  * Used as a fallback and for initial loading
  */
 export const DIRECT_URLS = {
     backgrounds: [
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/backgrounds/OIW_GraphicAssets_16x9_02.01.png`
+        "/assets/backgrounds/OIW_GraphicAssets_16x9_02.01.png"
     ],
     logos: [
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logos/OIW25_Logo_Date_RGB_BrightRed.png`
+        "/assets/logos/OIW25_Logo_Date_RGB_BrightRed.svg"
     ]
 };
 
@@ -60,90 +74,17 @@ interface FetchOptions {
 }
 
 /**
- * Fetches assets from a specified Supabase storage bucket
- * @param bucketName - Name of the bucket ('backgrounds' or 'logos')
- * @param options - Configuration for image transformation
+ * Fetches assets from local public directory
+ * @param bucketName - Name of the asset type ('backgrounds' or 'logos')
+ * @param options - Configuration for image transformation (not used for local files)
  * @returns Array of public URLs for the assets
  */
 export async function fetchAssets(
     bucketName: 'backgrounds' | 'logos',
     options: FetchOptions = { quality: 75, format: 'webp' }
 ): Promise<string[]> {
-    // Return cached assets if available
-    if (assetCache[bucketName].length > 0) return assetCache[bucketName];
-
-    try {
-        const supabase = createClient();
-        // Remove debug logs in production
-        // console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-        // console.log(`Fetching assets from ${bucketName} bucket...`);
-
-        // Get the list of files from the bucket
-        const { data: files, error: listError } = await supabase
-            .storage
-            .from(bucketName)
-            .list('', {
-                limit: 100,
-                offset: 0,
-                sortBy: { column: 'name', order: 'asc' }
-            });
-
-        if (listError) {
-            console.warn(`Error listing ${bucketName}, falling back to direct URLs`);
-            // Store direct URLs in cache to prevent repeated failed attempts
-            assetCache[bucketName] = DIRECT_URLS[bucketName];
-            return DIRECT_URLS[bucketName];
-        }
-
-        if (!files || files.length === 0) {
-            console.warn(`No files found in ${bucketName} bucket, using direct URLs`);
-            // Store direct URLs in cache to prevent repeated failed attempts
-            assetCache[bucketName] = DIRECT_URLS[bucketName];
-            return DIRECT_URLS[bucketName];
-        }
-
-        // Get public URLs for all PNG files
-        const urls = await Promise.all(
-            (files as FileObject[])
-                .filter(file => file.name.endsWith('.png'))
-                .map(async (file: FileObject) => {
-                    try {
-                        const { data, error } = await supabase
-                            .storage
-                            .from(bucketName)
-                            .download(file.name);
-
-                        if (error || !data) {
-                            console.error(`Error downloading ${file.name}:`, error);
-                            return null;
-                        }
-
-                        return URL.createObjectURL(data);
-                    } catch (error) {
-                        console.error(`Error getting URL for ${file.name}`);
-                        return null;
-                    }
-                })
-        );
-
-        // Filter out any null values from errors
-        const validUrls = urls.filter(Boolean) as string[];
-
-        if (validUrls.length === 0) {
-            console.warn(`No valid URLs found for ${bucketName}, using direct URLs`);
-            assetCache[bucketName] = DIRECT_URLS[bucketName];
-            return DIRECT_URLS[bucketName];
-        }
-
-        // Cache the valid URLs
-        assetCache[bucketName] = validUrls;
-        // Remove debug logs in production
-        // console.log(`[DEBUG] Successfully loaded ${validUrls.length} ${bucketName}:`, validUrls);
-        return validUrls;
-    } catch (error) {
-        console.error(`Error fetching ${bucketName}`);
-        return DIRECT_URLS[bucketName];
-    }
+    // Return the default assets directly since they're now local files
+    return DEFAULT_ASSETS[bucketName];
 }
 
 /**
@@ -165,35 +106,18 @@ export const getAssetBySeed = (
     return assets[total % assets.length];
 };
 
+/**
+ * Gets a local asset URL - no longer using Supabase transformations
+ * @param bucket - Asset type ('backgrounds' or 'logos')
+ * @param path - File path within the asset directory
+ * @param transformOptions - Not used for local files
+ * @returns Local asset URL
+ */
 export const getPublicUrl = (
     bucket: string,
     path: string,
     transformOptions?: FetchOptions
 ) => {
-    const baseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
-
-    // Remove debug logs in production
-    // console.log("[DEBUG] getPublicUrl - Base URL:", baseUrl);
-
-    if (!transformOptions) {
-        // Remove debug logs in production
-        // console.log("[DEBUG] getPublicUrl - Final URL (no transform):", baseUrl);
-        return baseUrl;
-    }
-
-    const { width, height, quality, format } = transformOptions;
-
-    const transformQuery = new URLSearchParams();
-    if (width) transformQuery.append("width", width.toString());
-    if (height) transformQuery.append("height", height.toString());
-    if (quality) transformQuery.append("quality", quality.toString());
-    if (format) transformQuery.append("format", format);
-
-    const queryString = transformQuery.toString();
-
-    const finalUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
-    // Remove debug logs in production
-    // console.log("[DEBUG] getPublicUrl - Final URL (with transform):", finalUrl);
-
-    return finalUrl;
+    // Return local asset URL directly
+    return `/assets/${bucket}/${path}`;
 }; 
