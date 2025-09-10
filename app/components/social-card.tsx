@@ -360,7 +360,7 @@ export function SocialCard() {
 
     return (
         <div className="w-full">
-            {isMobile && (
+            {isMobileView && (
                 <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mb-3 text-sm text-amber-700">
                     Please take a screenshot of the preview image or use a desktop device for the best experience.
                 </div>
