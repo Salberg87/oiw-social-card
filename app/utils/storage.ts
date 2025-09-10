@@ -31,14 +31,14 @@ export const DEFAULT_ASSETS = {
         "/assets/backgrounds/OIW_GraphicAssets_16x9_02.10.png",
     ],
     logos: [
-        "/assets/logos/OIW25_Logo_Date_RGB_BrightRed.svg",
-        "/assets/logos/OIW25_Logo_Date_RGB_Cream.svg",
-        "/assets/logos/OIW25_Logo_Date_RGB_DarkBlue.svg",
-        "/assets/logos/OIW25_Logo_Date_RGB_ForestGreen.svg",
-        "/assets/logos/OIW25_Logo_Date_RGB_Purple.svg",
-        "/assets/logos/OIW25_Logo_Date_RGB_SharpGreen.svg",
-        "/assets/logos/OIW25_Logo_Date_RGB_SkyBlue.svg",
-        "/assets/logos/OIW25_Logo_Date_RGB_SoftPink.svg",
+        "/assets/logos/OIW25_Logo_Date_RGB_BrightRed.png",
+        "/assets/logos/OIW25_Logo_Date_RGB_Cream.png",
+        "/assets/logos/OIW25_Logo_Date_RGB_DarkBlue.png",
+        "/assets/logos/OIW25_Logo_Date_RGB_ForestGreen.png",
+        "/assets/logos/OIW25_Logo_Date_RGB_Purple.png",
+        "/assets/logos/OIW25_Logo_Date_RGB_SharpGreen.png",
+        "/assets/logos/OIW25_Logo_Date_RGB_SkyBlue.png",
+        "/assets/logos/OIW25_Logo_Date_RGB_SoftPink.png",
         "/assets/logos/OIW25_Logo_Date_RGB_Black.png",
         "/assets/logos/OIW25_Logo_Date_RGB_White.png",
         "/assets/logos/OIW25_Logo_RGB_Black.png",
@@ -55,7 +55,7 @@ export const DIRECT_URLS = {
         "/assets/backgrounds/OIW_GraphicAssets_16x9_02.01.png"
     ],
     logos: [
-        "/assets/logos/OIW25_Logo_Date_RGB_BrightRed.svg"
+        "/assets/logos/OIW25_Logo_Date_RGB_BrightRed.png"
     ]
 };
 

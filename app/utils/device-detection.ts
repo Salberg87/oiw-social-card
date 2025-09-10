@@ -1,10 +1,11 @@
 /**
  * Utility functions for device detection
+ * These functions are hydration-safe and return consistent values on server and client
  */
 
 // Check if the current device is a mobile device based on user agent
 export function isMobileDevice(): boolean {
-    // Only run on client side
+    // Always return false on server to prevent hydration mismatch
     if (typeof window === 'undefined') {
         return false;
     }
@@ -19,6 +20,7 @@ export function isMobileDevice(): boolean {
 
 // Check if the screen size is mobile-sized (max-width: 768px)
 export function isMobileScreen(): boolean {
+    // Always return false on server to prevent hydration mismatch
     if (typeof window === 'undefined') {
         return false;
     }
@@ -27,6 +29,12 @@ export function isMobileScreen(): boolean {
 }
 
 // Combined check for mobile device or screen size
+// This function should only be called after component mount to prevent hydration mismatch
 export function isMobile(): boolean {
+    // Always return false on server to prevent hydration mismatch
+    if (typeof window === 'undefined') {
+        return false;
+    }
+
     return isMobileDevice() || isMobileScreen();
 } 
