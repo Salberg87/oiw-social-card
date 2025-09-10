@@ -16,7 +16,6 @@ export function Logo({
     width = 400,
     height = 133
 }: LogoProps) {
-    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const fileName = variant === 'cream'
@@ -32,24 +31,13 @@ export function Logo({
                 alt="Oslo Innovation Week 2025"
                 width={width}
                 height={height}
-                className={`
-                    h-auto
-                    transition-opacity duration-300
-                    ${isLoading ? 'opacity-0' : 'opacity-100'}
-                `}
+                className="h-auto"
                 priority
                 unoptimized
-                onLoad={() => setIsLoading(false)}
                 onError={() => {
                     setError("Failed to load logo");
-                    setIsLoading(false);
                 }}
             />
-            {isLoading && (
-                <div className="absolute inset-0 flex items-center">
-                    <div className="w-8 h-8 border-4 border-[#0071e1] border-t-transparent rounded-full animate-spin" />
-                </div>
-            )}
             {error && (
                 <p className="text-red-600 text-sm">{error}</p>
             )}
