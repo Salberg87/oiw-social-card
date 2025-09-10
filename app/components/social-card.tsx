@@ -64,11 +64,25 @@ export function SocialCard() {
     const [profileImageLoaded, setProfileImageLoaded] = useState(false);
     const [isMobileView, setIsMobileView] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [bgImageError, setBgImageError] = useState(false);
 
     // Set mounted state for hydration safety
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    // Fallback timeout for background image loading
+    useEffect(() => {
+        if (isMounted && !bgImageLoaded && !bgImageError) {
+            const timeout = setTimeout(() => {
+                console.log('Background image loading timeout, forcing load state');
+                setBgImageLoaded(true);
+                setIsLoading(false);
+            }, 5000); // 5 second timeout
+
+            return () => clearTimeout(timeout);
+        }
+    }, [isMounted, bgImageLoaded, bgImageError]);
 
     // Mobile detection after mount to prevent hydration mismatch
     useEffect(() => {
@@ -408,6 +422,9 @@ export function SocialCard() {
                                     {!bgImageLoaded && (
                                         <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
                                     )}
+                                    {bgImageError && (
+                                        <div className="absolute inset-0 bg-gradient-to-br from-[#000037] to-[#2b005c]"></div>
+                                    )}
                                     <Image
                                         src={formData.backgroundImage}
                                         alt="Background"
@@ -418,10 +435,13 @@ export function SocialCard() {
                                         quality={isMobileView ? 75 : 90} // Lower quality for mobile
                                         crossOrigin="anonymous"
                                         onLoad={() => {
+                                            console.log('Background image loaded successfully');
                                             setBgImageLoaded(true);
                                             setIsLoading(false);
                                         }}
                                         onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                            console.error('Background image failed to load:', e);
+                                            setBgImageError(true);
                                             setIsLoading(false);
                                             setBgImageLoaded(true); // Show fallback content
                                             setError("Failed to load background image");
@@ -443,6 +463,8 @@ export function SocialCard() {
                                                     priority={true}
                                                     unoptimized={true}
                                                     crossOrigin="anonymous"
+                                                    onLoad={() => console.log('Logo image loaded successfully')}
+                                                    onError={(e) => console.error('Logo image failed to load:', e)}
                                                 />
                                             </div>
                                         </div>
