@@ -20,8 +20,8 @@ export function Logo({
     const [error, setError] = useState<string | null>(null);
 
     const fileName = variant === 'cream'
-        ? 'OIW25_Logo_Date_RGB_Cream.svg'
-        : 'OIW25_Logo_Date_RGB_BrightRed.svg';
+        ? 'OIW25_Logo_Date_RGB_Cream.png'
+        : 'OIW25_Logo_Date_RGB_BrightRed.png';
 
     const logoUrl = `/assets/logos/${fileName}`;
 
