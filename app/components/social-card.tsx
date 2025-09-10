@@ -60,29 +60,14 @@ export function SocialCard() {
     const [scale, setScale] = useState(0.5);
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [bgImageLoaded, setBgImageLoaded] = useState(false);
-    const [profileImageLoaded, setProfileImageLoaded] = useState(false);
     const [isMobileView, setIsMobileView] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
-    const [bgImageError, setBgImageError] = useState(false);
 
     // Set mounted state for hydration safety
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
-    // Fallback timeout for background image loading
-    useEffect(() => {
-        if (isMounted && !bgImageLoaded && !bgImageError) {
-            const timeout = setTimeout(() => {
-                console.log('Background image loading timeout, forcing load state');
-                setBgImageLoaded(true);
-                setIsLoading(false);
-            }, 5000); // 5 second timeout
-
-            return () => clearTimeout(timeout);
-        }
-    }, [isMounted, bgImageLoaded, bgImageError]);
 
     // Mobile detection after mount to prevent hydration mismatch
     useEffect(() => {
@@ -419,31 +404,22 @@ export function SocialCard() {
                                 }}
                             >
                                 <div className="w-full h-full relative">
-                                    {!bgImageLoaded && (
-                                        <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
-                                    )}
-                                    {bgImageError && (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-[#000037] to-[#2b005c]"></div>
-                                    )}
                                     <Image
                                         src={formData.backgroundImage}
                                         alt="Background"
                                         fill
                                         sizes="100vw"
-                                        className={`object-cover transition-opacity duration-300 ${bgImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                        className="object-cover"
                                         priority={true}
                                         quality={isMobileView ? 75 : 90} // Lower quality for mobile
                                         crossOrigin="anonymous"
                                         onLoad={() => {
                                             console.log('Background image loaded successfully');
-                                            setBgImageLoaded(true);
                                             setIsLoading(false);
                                         }}
                                         onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                                             console.error('Background image failed to load:', e);
-                                            setBgImageError(true);
                                             setIsLoading(false);
-                                            setBgImageLoaded(true); // Show fallback content
                                             setError("Failed to load background image");
                                         }}
                                     />
@@ -471,20 +447,15 @@ export function SocialCard() {
 
                                         <div className="flex justify-center mb-20">
                                             {formData.croppedProfileImage ? (
-                                                <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC] relative">
-                                                    {!profileImageLoaded && (
-                                                        <Skeleton className="absolute inset-0 w-full h-full rounded-full" />
-                                                    )}
+                                                <div className="w-[450px] h-[450px] rounded-full overflow-hidden bg-gray-100 border-4 border-[#F5F5DC]">
                                                     <Image
                                                         src={formData.croppedProfileImage}
                                                         alt="Profile"
                                                         width={450}
                                                         height={450}
-                                                        className={`w-full h-full object-cover transition-opacity duration-300 ${profileImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                                        className="w-full h-full object-cover"
                                                         crossOrigin="anonymous"
-                                                        onLoad={() => setProfileImageLoaded(true)}
                                                         onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                                                            setProfileImageLoaded(true); // Show fallback content
                                                             setError("Failed to load profile image");
                                                         }}
                                                     />
